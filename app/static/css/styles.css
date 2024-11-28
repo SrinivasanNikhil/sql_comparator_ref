@@ -1,0 +1,56 @@
+/* General styles */
+body {
+	background-color: #f8f9fa;
+}
+
+/* Card styles */
+.card {
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+	background-color: #f8f9fa;
+	border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+/* Form styles */
+.form-control:focus {
+	border-color: #80bdff;
+	box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* Alert styles */
+.alert {
+	margin-bottom: 1rem;
+}
+
+/* Navigation styles */
+.navbar {
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Comparison results styles */
+.comparison-results {
+	margin-top: 2rem;
+}
+
+.query-card {
+	margin-bottom: 1rem;
+}
+
+.status-match {
+	color: #28a745;
+	font-weight: bold;
+}
+
+.status-mismatch {
+	color: #dc3545;
+	font-weight: bold;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+	.container {
+		padding: 0 15px;
+	}
+}

@@ -1,0 +1,129 @@
+{
+	"questions": [
+		{
+			"number": 1,
+			"text": "List the customer name, city, state and country for customers from the USA.",
+			"solution_query": "SELECT customerName, city, state, country FROM customers WHERE country = 'USA'"
+		},
+		{
+			"number": 2,
+			"text": "List the product code, name and buy price of all products with a price greater than $100.",
+			"solution_query": "SELECT productCode, productName, buyPrice FROM products WHERE buyPrice > 100"
+		},
+		{
+			"number": 3,
+			"text": "List the employee number, first name, last name, job title of all employees who are Sales Representatives.",
+			"solution_query": "SELECT employeeNumber, firstName, lastName, jobTitle FROM employees WHERE jobTitle = 'Sales Rep'"
+		},
+		{
+			"number": 4,
+			"text": "List the orderNumber, orderDate, status of all orders that were placed in 2004.",
+			"solution_query": "SELECT orderNumber, orderDate, status FROM orders WHERE YEAR(orderDate) = 2004"
+		},
+		{
+			"number": 5,
+			"text": "List the productCode, productName, productLine, buyPrice of all products in the 'Classic Cars' product line.",
+			"solution_query": "SELECT productCode, productName, productLine, buyPrice FROM products WHERE productLine = 'Classic Cars'"
+		},
+		{
+			"number": 6,
+			"text": "List the customerNumber, customerName, creditLimit of all customers with credit limit above $100,000.",
+			"solution_query": "SELECT customerNumber, customerName, creditLimit FROM customers WHERE creditLimit > 100000"
+		},
+		{
+			"number": 7,
+			"text": "List all products with less than 1000 units in stock.",
+			"solution_query": "SELECT productCode, productName, quantityInStock FROM products WHERE quantityInStock < 1000"
+		},
+		{
+			"number": 8,
+			"text": "Find all orders that are 'On Hold'.",
+			"solution_query": "SELECT orderNumber, orderDate, status FROM orders WHERE status = 'On Hold'"
+		},
+		{
+			"number": 9,
+			"text": "List customers from Germany or France.",
+			"solution_query": "SELECT customerName, country, city FROM customers WHERE country IN ('Germany', 'France')"
+		},
+		{
+			"number": 10,
+			"text": "Find products with 'BMW' in their name.",
+			"solution_query": "SELECT productCode, productName FROM products WHERE productName REGEXP 'BMW'"
+		},
+		{
+			"number": 11,
+			"text": "List all customers whose contact first name starts with 'J'.",
+			"solution_query": "SELECT customerName, contactFirstName, contactLastName FROM customers WHERE contactFirstName LIKE 'J%'"
+		},
+		{
+			"number": 12,
+			"text": "Find orders placed between January 1, 2004, and June 30, 2004.",
+			"solution_query": "SELECT orderNumber, orderDate FROM orders WHERE orderDate BETWEEN '2004-01-01' AND '2004-06-30'"
+		},
+		{
+			"number": 13,
+			"text": "List products with vendor scale of 1:18.",
+			"solution_query": "SELECT productCode, productName, productScale FROM products WHERE productScale = '1:18'"
+		},
+		{
+			"number": 14,
+			"text": "Find customers without a state specified.",
+			"solution_query": "SELECT customerName, country, state FROM customers WHERE state IS NULL"
+		},
+		{
+			"number": 15,
+			"text": "List products with price between $50 and $75.",
+			"solution_query": "SELECT productCode, productName, buyPrice FROM products WHERE buyPrice BETWEEN 50 AND 75"
+		},
+		{
+			"number": 16,
+			"text": "Find all employees in offices located in the USA.",
+			"solution_query": "SELECT firstName, lastName, officeCode FROM employees WHERE officeCode IN (SELECT officeCode FROM offices WHERE country = 'USA')"
+		},
+		{
+			"number": 17,
+			"text": "List products that have either 'Ford' or 'Chevy' in their names.",
+			"solution_query": "SELECT productCode, productName FROM products WHERE productName LIKE '%Ford%' OR productName LIKE '%Chevy%'"
+		},
+		{
+			"number": 18,
+			"text": "Find customers with phone numbers that don't start with '+'.",
+			"solution_query": "SELECT customerName, phone FROM customers WHERE phone NOT LIKE '+%'"
+		},
+		{
+			"number": 19,
+			"text": "List all products that are ships or planes.",
+			"solution_query": "SELECT productCode, productName, productLine FROM products WHERE productLine IN ('Ships', 'Planes')"
+		},
+		{
+			"number": 20,
+			"text": "Find orders with comments mentioning 'delayed'.",
+			"solution_query": "SELECT orderNumber, status, comments FROM orders WHERE comments LIKE '%delayed%'"
+		},
+		{
+			"number": 21,
+			"text": "List customers from cities starting with 'San'.",
+			"solution_query": "SELECT customerName, city, country FROM customers WHERE city LIKE 'San%'"
+		},
+		{
+			"number": 22,
+			"text": "Find products with MSRP at least twice their buy price.",
+			"solution_query": "SELECT productCode, productName, buyPrice, MSRP FROM products WHERE MSRP >= buyPrice * 2"
+		},
+		{
+			"number": 23,
+			"text": "List all customers with credit limit between $50,000 and $100,000 who are not from the USA.",
+			"solution_query": "SELECT customerName, country, creditLimit FROM customers WHERE creditLimit BETWEEN 50000 AND 100000 AND country != 'USA'"
+		},
+		{
+			"number": 24,
+			"text": "Find products with either no units in stock or no units on order.",
+			"solution_query": "SELECT productCode, productName, quantityInStock FROM products WHERE quantityInStock = 0 OR quantityOnOrder = 0"
+		},
+		{
+			"number": 25,
+			"text": "List all orders placed in the last quarter of 2004.",
+			"solution_query": "SELECT orderNumber, orderDate, status FROM orders WHERE orderDate BETWEEN '2004-10-01' AND '2004-12-31'"
+		}
+	]
+}

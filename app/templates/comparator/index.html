@@ -1,0 +1,652 @@
+{% extends "base.html" %}
+
+{% block title %}SQL Query Comparator{% endblock %}
+
+{% block extra_css %}
+<style>
+    #questionText {
+        min-height: 100px;
+        background-color: #f8f9fa;
+        border-radius: 4px;
+    }
+
+    .question-module {
+        font-weight: bold;
+        color: #0d6efd;
+    }
+
+    .comparison-results {
+        margin-top: 20px;
+    }
+
+    .query-card {
+        margin-bottom: 15px;
+    }
+
+    .status-match {
+        color: green;
+    }
+
+    .status-mismatch {
+        color: red;
+    }
+
+    .nav-tabs .nav-link {
+        color: #495057;
+    }
+
+    .nav-tabs .nav-link.active {
+        font-weight: bold;
+    }
+
+    .tab-content {
+        padding-top: 20px;
+    }
+
+    #queryText {
+        font-family: monospace;
+    }
+
+    .comparison-card {
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .comparison-card pre {
+        margin: 0;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        font-size: 0.9rem;
+        max-height: 200px;
+        overflow-y: auto;
+    }
+
+    .query-analysis .card {
+        background-color: #f8f9fa;
+    }
+
+    .missing-terms,
+    .additional-terms {
+        margin-bottom: 0.5rem;
+    }
+
+    .columns-comparison,
+    .records-comparison {
+        font-size: 0.9rem;
+    }
+
+    .text-success {
+        color: #198754;
+    }
+
+    .text-danger {
+        color: #dc3545;
+    }
+
+    .text-warning {
+        color: #ffc107;
+    }
+
+    .card-header {
+        background-color: #f8f9fa;
+    }
+
+    .alert-warning {
+        color: #856404;
+        background-color: #fff3cd;
+        border-color: #ffeeba;
+    }
+
+    .alert i {
+        margin-right: 8px;
+    }
+
+    .small {
+        font-size: 0.875rem;
+    }
+
+    .alert ul {
+        margin-top: 0.5rem;
+        padding-left: 1.25rem;
+    }
+
+    .comparison-result {
+        background-color: #fff;
+        border-radius: 0.25rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+        padding: 1.5rem;
+    }
+
+    .list-group-item {
+        position: relative;
+        padding: 0.75rem 1.25rem;
+        margin-bottom: -1px;
+        background-color: #fff;
+        border: 1px solid rgba(0, 0, 0, .125);
+    }
+
+    .reference-query {
+        display: none;
+    }
+
+    .reference-query.show {
+        display: block;
+    }
+
+    .toggle-reference {
+        cursor: pointer;
+        user-select: none;
+        margin-bottom: 1rem;
+    }
+
+    .toggle-reference input[type="checkbox"] {
+        margin-right: 0.5rem;
+    }
+
+    .query-section {
+        margin-bottom: 1.5rem;
+    }
+</style>
+{% endblock %}
+
+<!-- In app/templates/comparator/index.html, modify the content block -->
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h2 class="mb-4">SQL Query Comparator</h2>
+
+        <!-- Add tabs for different comparison modes -->
+        <ul class="nav nav-tabs mb-3" id="compareModes" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="file-tab" data-bs-toggle="tab" data-bs-target="#fileCompare"
+                    type="button" role="tab">
+                    File Comparison
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="query-tab" data-bs-toggle="tab" data-bs-target="#queryCompare"
+                    type="button" role="tab">
+                    Single Query Comparison
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="compareContent">
+            <!-- File comparison tab -->
+            <div class="tab-pane fade show active" id="fileCompare" role="tabpanel">
+                <!-- Your existing file comparison form -->
+                <div class="card">
+                    <!-- ... existing file comparison form ... -->
+                </div>
+            </div>
+
+            <!-- In app/templates/comparator/index.html, update the single query tab content -->
+            <div class="tab-pane fade" id="queryCompare" role="tabpanel">
+                <div class="card">
+                    <div class="card-body">
+                        <form id="singleQueryForm">
+                            <div class="mb-3">
+                                <label for="questionModule" class="form-label">Select Module</label>
+                                <select class="form-select" id="questionModule" name="questionModule" required>
+                                    <option value="">Select a module...</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="questionNumber" class="form-label">Select Question</label>
+                                <select class="form-select" id="questionNumber" name="questionNumber" required>
+                                    <option value="">First select a module...</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Question Text</label>
+                                <div id="questionText" class="border p-3 bg-light">
+                                    Select a question to see its description...
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="queryText" class="form-label">Your SQL Query</label>
+                                <textarea class="form-control" id="queryText" name="queryText" rows="5"
+                                    required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Compare Query</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- In app/templates/comparator/index.html, add a results template -->
+            <template id="queryComparisonTemplate">
+                <div class="comparison-card card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Question <span class="question-number"></span></h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- Query Comparison Section -->
+                        <div class="query-comparison mb-4">
+                            <h6 class="border-bottom pb-2">Query Comparison</h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="user-query">
+                                        <h6 class="text-primary">Your Query:</h6>
+                                        <pre class="bg-light p-3 rounded"></pre>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="reference-query">
+                                        <h6 class="text-success">Reference Query:</h6>
+                                        <pre class="bg-light p-3 rounded"></pre>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Query Analysis -->
+                            <div class="query-analysis mt-3">
+                                <h6 class="text-muted">Query Analysis:</h6>
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="missing-terms">
+                                            <strong>Missing Terms:</strong>
+                                            <span class="text-danger"></span>
+                                        </div>
+                                        <div class="additional-terms">
+                                            <strong>Additional Terms:</strong>
+                                            <span class="text-warning"></span>
+                                        </div>
+                                        <div class="query-match-status">
+                                            <strong>Query Match Status:</strong>
+                                            <span></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Results Comparison Section -->
+                        <div class="results-comparison">
+                            <h6 class="border-bottom pb-2">Results Comparison</h6>
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <h6>Column Structure:</h6>
+                                            <div class="columns-comparison"></div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <h6>Record Counts:</h6>
+                                            <div class="records-comparison"></div>
+                                        </div>
+                                    </div>
+                                    <div class="mt-3">
+                                        <h6>Results Match Status:</h6>
+                                        <div class="results-match-status"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </template>
+
+
+            <div id="results" class="comparison-results" style="display: none;">
+                <h3>Comparison Results</h3>
+                <div id="resultsContent"></div>
+            </div>
+        </div>
+    </div>
+    {% endblock %}
+
+
+    {% block extra_js %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+
+        window.addEventListener('load', async () => {
+            try {
+                const response = await fetch('/get_question_modules');
+                const data = await response.json();
+
+                const moduleSelect = document.getElementById('questionModule');
+                data.modules.forEach(module => {
+                    const option = document.createElement('option');
+                    option.value = module;
+                    option.textContent = module.replace('.json', '');
+                    moduleSelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error loading modules:', error);
+            }
+        });
+
+        // Load questions when module is selected
+        document.getElementById('questionModule').addEventListener('change', async (e) => {
+            const moduleSelect = e.target;
+            const questionSelect = document.getElementById('questionNumber');
+            const questionText = document.getElementById('questionText');
+
+            // Reset question selection and text
+            questionSelect.innerHTML = '<option value="">Select a question...</option>';
+            questionText.textContent = 'Select a question to see its description...';
+
+            if (!moduleSelect.value) return;
+
+            try {
+                const response = await fetch(`/get_module_questions/${moduleSelect.value}`);
+                const data = await response.json();
+
+                data.questions.forEach(question => {
+                    const option = document.createElement('option');
+                    option.value = question.number;
+                    option.textContent = `Question ${question.number}`;
+                    questionSelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error loading questions:', error);
+            }
+        });
+
+        // Update question text when question is selected
+        document.getElementById('questionNumber').addEventListener('change', async (e) => {
+            const questionSelect = e.target;
+            const moduleSelect = document.getElementById('questionModule');
+            const questionText = document.getElementById('questionText');
+
+            if (!questionSelect.value || !moduleSelect.value) return;
+
+            try {
+                const response = await fetch(`/get_module_questions/${moduleSelect.value}`);
+                const data = await response.json();
+
+                const question = data.questions.find(q => q.number === parseInt(questionSelect.value));
+                if (question) {
+                    questionText.textContent = question.text;
+                }
+            } catch (error) {
+                console.error('Error loading question text:', error);
+            }
+        });
+
+
+
+        // Add handler for single query comparison
+        document.getElementById('singleQueryForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData();
+            formData.append('module', document.getElementById('questionModule').value);
+            formData.append('questionNumber', document.getElementById('questionNumber').value);
+            formData.append('query', document.getElementById('queryText').value);
+
+            try {
+                const response = await fetch('/compare_single_query', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    alert(data.error);
+                    return;
+                }
+
+                displayResults(data.comparisons);
+            } catch (error) {
+                alert('Error comparing query: ' + error);
+            }
+        });
+
+        document.getElementById('compareForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData(e.target);
+            try {
+                const response = await fetch('/compare_files', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    alert(data.error);
+                    return;
+                }
+
+                displayResults(data.comparisons);
+            } catch (error) {
+                alert('Error comparing files: ' + error);
+            }
+        });
+
+        function displayResults(comparisons) {
+            const resultsDiv = document.getElementById('results');
+            const resultsContent = document.getElementById('resultsContent');
+            resultsContent.innerHTML = '';
+
+            comparisons.forEach(comparison => {
+                const card = document.createElement('div');
+                card.className = 'card query-card';
+
+                const statusClass = comparison.status === 'Match' ? 'status-match' : 'status-mismatch';
+
+                card.innerHTML = `
+            <div class="card-header">
+                Query ${comparison.query_number}
+                <span class="${statusClass}">${comparison.status}</span>
+            </div>
+            <div class="card-body">
+                ${comparison.query_analysis ? `
+                    <h5>Analysis:</h5>
+                    <pre>${comparison.query_analysis}</pre>
+                ` : ''}
+                ${comparison.result_comparison ? `
+                    <h5>Results Comparison:</h5>
+                    <pre>${comparison.result_comparison}</pre>
+                ` : ''}
+            </div>
+        `;
+
+                resultsContent.appendChild(card);
+            });
+
+            resultsDiv.style.display = 'block';
+        }
+
+        // Fetch reference files on page load
+        window.addEventListener('load', async () => {
+            try {
+                const response = await fetch('/get_reference_files');
+                const data = await response.json();
+
+                const fileSelect = document.getElementById('referenceFile');
+                const querySelect = document.getElementById('referenceFileQuery');
+
+                data.files.forEach(file => {
+                    // Populate file comparison select
+                    const option1 = document.createElement('option');
+                    option1.value = file;
+                    option1.textContent = file;
+                    fileSelect.appendChild(option1);
+
+                    // Populate query comparison select
+                    const option2 = document.createElement('option');
+                    option2.value = file;
+                    option2.textContent = file;
+                    querySelect.appendChild(option2);
+                });
+            } catch (error) {
+                console.error('Error loading reference files:', error);
+            }
+        });
+
+
+        function displayResults(comparisons) {
+            const resultsDiv = document.getElementById('results');
+            const resultsContent = document.getElementById('resultsContent');
+            resultsContent.innerHTML = '';
+
+            comparisons.forEach((result, index) => {
+                const resultHtml = `
+            <div class="comparison-result mb-4">
+                <h4>Question ${result.query_number}</h4>
+                <p class="text-muted">${result.question_text}</p>
+                
+                <div class="query-section">
+                    <label class="toggle-reference">
+                        <input type="checkbox" class="reference-toggle" data-result-index="${index}">
+                        Show Reference Query
+                    </label>
+                    
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h5>Your Query:</h5>
+                            <pre class="bg-light p-3 rounded">${result.user_query}</pre>
+                        </div>
+                    </div>
+                    
+                    <div class="reference-query" id="reference-${index}">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h5>Reference Query:</h5>
+                                <pre class="bg-light p-3 rounded">${result.reference_query}</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="analysis mt-4">
+                    <h5>Query Analysis:</h5>
+                    <ul class="list-group">
+                        <li class="list-group-item">
+                            <strong>Missing Terms:</strong> 
+                            <span class="text-danger">
+                                ${result.query_analysis.missing_terms.length ?
+                        result.query_analysis.missing_terms.join(', ') : 'None'}
+                            </span>
+                        </li>
+                        <li class="list-group-item">
+                            <strong>Additional Terms:</strong> 
+                            <span class="text-warning">
+                                ${result.query_analysis.additional_terms.length ?
+                        result.query_analysis.additional_terms.join(', ') : 'None'}
+                            </span>
+                        </li>
+                        <li class="list-group-item">
+                            <strong>Query Match:</strong> 
+                            <span class="${result.query_analysis.exact_match ? 'text-success' : 'text-danger'}">
+                                ${result.query_analysis.exact_match ? '✓ Exact Match' : '✗ Different'}
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+                
+                ${result.result_comparison ? `
+                    <div class="results mt-4">
+                        <h5>Results Comparison:</h5>
+                        ${result.result_comparison.record_counts.user === 0 ? `
+                            <div class="alert alert-warning mb-3">
+                                <h6 class="alert-heading"><i class="fas fa-exclamation-triangle"></i> No Results Warning</h6>
+                                <p class="mb-0">Your query didn't return any results, while the reference query returned 
+                                    ${result.result_comparison.record_counts.reference} record(s). This might indicate:</p>
+                                <ul class="mb-0 mt-2">
+                                    <li>Missing or incorrect WHERE conditions</li>
+                                    <li>Incorrect JOIN conditions</li>
+                                    <li>Wrong table or column names</li>
+                                    <li>Overly restrictive filtering</li>
+                                </ul>
+                            </div>
+                        ` : ''}
+                        <ul class="list-group">
+                            <li class="list-group-item">
+                                <strong>Column Structure:</strong> 
+                                <span class="${result.result_comparison.columns.match ? 'text-success' : 'text-danger'}">
+                                    ${result.result_comparison.columns.match ? '✓ Match' : '✗ Different'}
+                                </span>
+                                ${!result.result_comparison.columns.match ? `
+                                    <div class="mt-2 small">
+                                        <div>Your Columns: ${result.result_comparison.columns.user.join(', ') || 'None'}</div>
+                                        <div>Expected Columns: ${result.result_comparison.columns.reference.join(', ') || 'None'}</div>
+                                    </div>
+                                ` : ''}
+                            </li>
+                            <li class="list-group-item">
+                                <strong>Record Count:</strong> 
+                                <span class="${result.result_comparison.record_counts.user === result.result_comparison.record_counts.reference ? 'text-success' : 'text-warning'}">
+                                    Your Query: ${result.result_comparison.record_counts.user} | 
+                                    Reference: ${result.result_comparison.record_counts.reference}
+                                </span>
+                            </li>
+                            <li class="list-group-item">
+                                <strong>Results Match:</strong> 
+                                <span class="${result.result_comparison.exact_match ? 'text-success' : 'text-danger'}">
+                                    ${result.result_comparison.exact_match ? '✓ Exact Match' : '✗ Different'}
+                                </span>
+                            </li>
+                        </ul>
+                    </div>
+                ` : `
+                    <div class="alert alert-danger mt-4">
+                        <h5 class="alert-heading"><i class="fas fa-times-circle"></i> Query Execution Error</h5>
+                        <p class="mb-0">
+                            ${result.error_message || 'Your query could not be executed. Please check your syntax and try again.'}
+                        </p>
+                        <hr>
+                        <p class="mb-0">Common causes of errors:</p>
+                        <ul class="mb-0">
+                            <li>Incorrect table or column names</li>
+                            <li>Syntax errors in the SQL query</li>
+                            <li>Missing or incorrect JOIN conditions</li>
+                            <li>Invalid SQL operators or functions</li>
+                        </ul>
+                    </div>
+                `}
+            </div>
+        `;
+
+                resultsContent.innerHTML += resultHtml;
+            });
+
+            // Add event listeners for toggle checkboxes
+            document.querySelectorAll('.reference-toggle').forEach(checkbox => {
+                checkbox.addEventListener('change', function () {
+                    const resultIndex = this.getAttribute('data-result-index');
+                    const referenceDiv = document.getElementById(`reference-${resultIndex}`);
+                    if (this.checked) {
+                        referenceDiv.classList.add('show');
+                    } else {
+                        referenceDiv.classList.remove('show');
+                    }
+                });
+            });
+
+            resultsDiv.style.display = 'block';
+            resultsDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+
+
+
+        // Helper function to format SQL queries
+        function formatSQL(sql) {
+            // Basic SQL formatting - you might want to use a more sophisticated SQL formatter
+            return sql.trim()
+                .replace(/\s+/g, ' ')
+                .replace(/ (SELECT|FROM|WHERE|GROUP BY|ORDER BY|HAVING|JOIN|LEFT|RIGHT|INNER|OUTER|ON|AND|OR) /gi, '\n$1 ')
+                .replace(/,/g, ',\n    ');
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            // Initialize Bootstrap tabs
+            var triggerTabList = [].slice.call(document.querySelectorAll('#compareModes button'))
+            triggerTabList.forEach(function (triggerEl) {
+                var tabTrigger = new bootstrap.Tab(triggerEl)
+                triggerEl.addEventListener('click', function (event) {
+                    event.preventDefault()
+                    tabTrigger.show()
+                })
+            })
+        });
+
+
+    </script>
+    {% endblock %}

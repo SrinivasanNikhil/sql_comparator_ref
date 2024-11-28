@@ -1,0 +1,14 @@
+{
+	"questions": [
+		{
+			"number": 1,
+			"text": "List all employees in the Sales department.",
+			"solution_query": "SELECT * FROM Employees WHERE jobTitle REGEXP 'Sales'"
+		},
+		{
+			"number": 2,
+			"text": "Find the total payments made by customers in each country",
+			"solution_query": "SELECT country, SUM(amount) FROM Customers JOIN Payments USING (customerNumber) GROUP BY country"
+		}
+	]
+}
