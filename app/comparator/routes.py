@@ -1,5 +1,6 @@
 from flask import render_template, request, jsonify, current_app
 from flask_login import login_required
+from werkzeug.utils import secure_filename
 import os
 import json
 from app.comparator import bp
@@ -9,6 +10,38 @@ from app.comparator.services import SQLComparator
 @login_required
 def index():
     return render_template('comparator/index.html')
+
+@bp.route('/compare_files', methods=['POST'])
+@login_required
+def compare_files():
+    try:
+        # Get the reference file name
+        reference_file = request.form['reference_file']
+        
+        # Get the uploaded file
+        if 'user_file' not in request.files:
+            return jsonify({'error': 'No file uploaded'}), 400
+        
+        file = request.files['user_file']
+        if file.filename == '':
+            return jsonify({'error': 'No file selected'}), 400
+            
+        # Validate file
+        if not file.filename.endswith('.json'):
+            return jsonify({'error': 'File must be JSON format'}), 400
+            
+        # Parse uploaded JSON file
+        try:
+            user_file_content = json.loads(file.read())
+        except json.JSONDecodeError:
+            return jsonify({'error': 'Invalid JSON file'}), 400
+            
+        # Compare files
+        comparison_results = SQLComparator.compare_files(reference_file, user_file_content)
+        return jsonify(comparison_results)
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 @bp.route('/compare_single_query', methods=['POST'])
 @login_required
@@ -62,7 +95,27 @@ def get_question_modules():
     try:
         modules = [f for f in os.listdir(questions_dir) 
                   if f.endswith('.json')]
-        return jsonify({'modules': modules})
+        
+        # Load module names for dropdown
+        module_list = []
+        for module in modules:
+            try:
+                with open(os.path.join(questions_dir, module), 'r') as f:
+                    data = json.load(f)
+                    # If file has a title, use it, otherwise use filename
+                    title = data.get('title', module)
+                    module_list.append({
+                        'filename': module,
+                        'title': title
+                    })
+            except:
+                # If there's an error reading the file, just use the filename
+                module_list.append({
+                    'filename': module,
+                    'title': module
+                })
+                
+        return jsonify({'modules': module_list})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 

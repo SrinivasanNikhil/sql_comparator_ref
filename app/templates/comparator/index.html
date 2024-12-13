@@ -175,7 +175,22 @@
             <div class="tab-pane fade show active" id="fileCompare" role="tabpanel">
                 <!-- Your existing file comparison form -->
                 <div class="card">
-                    <!-- ... existing file comparison form ... -->
+                    <div class="card-body">
+                        <form id="fileCompareForm" enctype="multipart/form-data">
+                            <div class="mb-3">
+                                <label for="referenceFile" class="form-label">Select Reference File</label>
+                                <select class="form-select" id="referenceFile" name="reference_file" required>
+                                    <option value="">Select a reference file...</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="userFile" class="form-label">Upload Your Solution File</label>
+                                <input type="file" class="form-control" id="userFile" name="user_file" accept=".json" required>
+                                <div class="form-text">Upload a JSON file containing your SQL queries</div>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Compare Files</button>
+                        </form>
+                    </div>
                 </div>
             </div>
 
@@ -300,6 +315,114 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
+        // Populate reference file dropdown
+        fetch('/comparator/get_modules')
+            .then(response => response.json())
+            .then(data => {
+                const referenceSelect = document.getElementById('referenceFile');
+                if (data.modules) {
+                    data.modules.forEach(module => {
+                        const option = document.createElement('option');
+                        option.value = module.filename;
+                        option.textContent = module.title;
+                        referenceSelect.appendChild(option);
+                    });
+                }
+            })
+            .catch(error => console.error('Error loading reference files:', error));
+
+        // Handle file comparison form submission
+        document.getElementById('fileCompareForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            
+            fetch('/comparator/compare_files', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                const resultsDiv = document.getElementById('results');
+                const resultsContent = document.getElementById('resultsContent');
+                resultsContent.innerHTML = ''; // Clear previous results
+                
+                if (data.error) {
+                    resultsContent.innerHTML = `<div class="alert alert-danger">${data.error}</div>`;
+                    resultsDiv.style.display = 'block';
+                    return;
+                }
+                
+                // Add overall score
+                const scoreCard = document.createElement('div');
+                scoreCard.className = 'card mb-4';
+                scoreCard.innerHTML = `
+                    <div class="card-body">
+                        <h4>Overall Score: ${data.percentage.toFixed(1)}%</h4>
+                        <p>Total Score: ${data.total_score} / ${data.max_possible_score}</p>
+                    </div>
+                `;
+                resultsContent.appendChild(scoreCard);
+                
+                // Add individual question results
+                const template = document.getElementById('queryComparisonTemplate');
+                data.results.forEach(result => {
+                    const resultElement = template.content.cloneNode(true);
+                    
+                    // Set question number
+                    resultElement.querySelector('.question-number').textContent = result.question_number;
+                    
+                    if (result.status === 'missing') {
+                        const card = resultElement.querySelector('.card-body');
+                        card.innerHTML = `
+                            <div class="alert alert-warning">
+                                Question not found in uploaded file.
+                                <br>Score: ${result.score}/${result.max_score}
+                            </div>
+                        `;
+                    } else {
+                        const comparison = result.comparison;
+                        
+                        // Set query text
+                        resultElement.querySelector('.user-query pre').textContent = 
+                            comparison.user_query || 'No query provided';
+                        resultElement.querySelector('.reference-query pre').textContent = 
+                            comparison.reference_query || 'No reference query available';
+                        
+                        // Set analysis results
+                        resultElement.querySelector('.missing-terms span').textContent = 
+                            comparison.query_analysis.missing_terms.join(', ') || 'None';
+                        resultElement.querySelector('.additional-terms span').textContent = 
+                            comparison.query_analysis.additional_terms.join(', ') || 'None';
+                        resultElement.querySelector('.query-match-status span').textContent = 
+                            comparison.query_analysis.exact_match ? 'Exact Match' : 'Partial Match';
+                        
+                        // Set comparison results
+                        if (comparison.result_comparison) {
+                            const columnsMatch = comparison.result_comparison.columns_match;
+                            const rowsMatch = comparison.result_comparison.row_count_match;
+                            
+                            resultElement.querySelector('.columns-comparison').textContent = 
+                                columnsMatch ? '✓ Columns match' : '✗ Columns do not match';
+                            resultElement.querySelector('.records-comparison').textContent = 
+                                rowsMatch ? '✓ Record counts match' : '✗ Record counts do not match';
+                            resultElement.querySelector('.results-match-status').textContent = 
+                                comparison.result_comparison.exact_match ? 'Results match exactly' : 'Results differ';
+                        }
+                    }
+                    
+                    resultsContent.appendChild(resultElement);
+                });
+                
+                resultsDiv.style.display = 'block';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                const resultsContent = document.getElementById('resultsContent');
+                resultsContent.innerHTML = `<div class="alert alert-danger">Error processing comparison: ${error}</div>`;
+                document.getElementById('results').style.display = 'block';
+            });
+        });
 
         window.addEventListener('load', async () => {
             try {
