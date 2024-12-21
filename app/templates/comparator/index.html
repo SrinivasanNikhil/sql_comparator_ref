@@ -320,7 +320,7 @@
         fetch('/get_modules')
             .then(response => response.json())
             .then(data => {
-                console.log(data);
+                //console.log(data);
                 const referenceSelect = document.getElementById('referenceFile');
                 const questionModuleSelect = document.getElementById('questionModule');
 
@@ -445,6 +445,7 @@
 
                 const moduleSelect = document.getElementById('questionModule');
                 data.modules.forEach(module => {
+                    //console.log(module);
                     const option = document.createElement('option');
                     option.value = module;
                     option.textContent = module.replace('.json', '');
@@ -533,28 +534,28 @@
             }
         });
 
-        document.getElementById('compareForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
+        // document.getElementById('compareForm').addEventListener('submit', async (e) => {
+        //     e.preventDefault();
 
-            const formData = new FormData(e.target);
-            try {
-                const response = await fetch('/compare_files', {
-                    method: 'POST',
-                    body: formData
-                });
+        //     const formData = new FormData(e.target);
+        //     try {
+        //         const response = await fetch('/compare_files', {
+        //             method: 'POST',
+        //             body: formData
+        //         });
 
-                const data = await response.json();
+        //         const data = await response.json();
 
-                if (data.error) {
-                    alert(data.error);
-                    return;
-                }
+        //         if (data.error) {
+        //             alert(data.error);
+        //             return;
+        //         }
 
-                displayResults(data.comparisons);
-            } catch (error) {
-                alert('Error comparing files: ' + error);
-            }
-        });
+        //         displayResults(data.comparisons);
+        //     } catch (error) {
+        //         alert('Error comparing files: ' + error);
+        //     }
+        // });
 
         function displayResults(comparisons) {
             const resultsDiv = document.getElementById('results');
@@ -590,32 +591,32 @@
             resultsDiv.style.display = 'block';
         }
 
-        // Fetch reference files on page load
-        window.addEventListener('load', async () => {
-            try {
-                const response = await fetch('/get_reference_files');
-                const data = await response.json();
+        // // Fetch reference files on page load
+        // window.addEventListener('load', async () => {
+        //     try {
+        //         const response = await fetch('/get_reference_files');
+        //         const data = await response.json();
 
-                const fileSelect = document.getElementById('referenceFile');
-                const querySelect = document.getElementById('referenceFileQuery');
+        //         const fileSelect = document.getElementById('referenceFile');
+        //         const querySelect = document.getElementById('referenceFileQuery');
 
-                data.files.forEach(file => {
-                    // Populate file comparison select
-                    const option1 = document.createElement('option');
-                    option1.value = file;
-                    option1.textContent = file;
-                    fileSelect.appendChild(option1);
+        //         data.files.forEach(file => {
+        //             // Populate file comparison select
+        //             const option1 = document.createElement('option');
+        //             option1.value = file;
+        //             option1.textContent = file;
+        //             fileSelect.appendChild(option1);
 
-                    // Populate query comparison select
-                    const option2 = document.createElement('option');
-                    option2.value = file;
-                    option2.textContent = file;
-                    querySelect.appendChild(option2);
-                });
-            } catch (error) {
-                console.error('Error loading reference files:', error);
-            }
-        });
+        //             // Populate query comparison select
+        //             const option2 = document.createElement('option');
+        //             option2.value = file;
+        //             option2.textContent = file;
+        //             querySelect.appendChild(option2);
+        //         });
+        //     } catch (error) {
+        //         console.error('Error loading reference files:', error);
+        //     }
+        // });
 
 
         function displayResults(comparisons) {
@@ -780,6 +781,12 @@
                 triggerEl.addEventListener('click', function (event) {
                     event.preventDefault()
                     tabTrigger.show()
+
+                    // Clear the results when switching tabs
+                    const resultsDiv = document.getElementById('results');
+                    const resultsContent = document.getElementById('resultsContent');
+                    resultsContent.innerHTML = '';
+                    resultsDiv.style.display = 'none';
                 })
             })
         });

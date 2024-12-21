@@ -80,7 +80,7 @@ class SQLComparator:
                 )
                 
                 #log the comparison
-                current_app.logger.info(f"Comparison for question {ref_num}: {comparison}")
+                #current_app.logger.info(f"Comparison for question {ref_num}: {comparison}")
                 
                 # Calculate score based on query analysis and results
                 score = SQLComparator._calculate_query_score(comparison)
