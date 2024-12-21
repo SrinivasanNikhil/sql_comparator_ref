@@ -1,0 +1,130 @@
+{
+	"title": "Order By, Functions and Subquery",
+	"questions": [
+		{
+			"number": 1,
+			"text": "List the customerName, city, and country for all customers ordered by their city alphabetically.",
+			"solution_query": "SELECT customerName, city, country FROM customers ORDER BY city ASC"
+		},
+		{
+			"number": 2,
+			"text": "List the customerName, country, and creditLimit for customers ordered by their creditLimit in descending order.",
+			"solution_query": "SELECT customerName, country, creditLimit FROM customers ORDER BY creditLimit DESC"
+		},
+		{
+			"number": 3,
+			"text": "List the productCode, productName, and buyPrice of all products ordered by buyPrice in ascending order.",
+			"solution_query": "SELECT productCode, productName, buyPrice FROM products ORDER BY buyPrice ASC"
+		},
+		{
+			"number": 4,
+			"text": "List the employeeNumber, lastName, and jobTitle of employees ordered by lastName in alphabetical order.",
+			"solution_query": "SELECT employeeNumber, lastName, jobTitle FROM employees ORDER BY lastName ASC"
+		},
+		{
+			"number": 5,
+			"text": "List the officeCode, city, and country for all offices ordered by city in descending order.",
+			"solution_query": "SELECT officeCode, city, country FROM offices ORDER BY city DESC"
+		},
+		{
+			"number": 6,
+			"text": "List the total number of customers in the database.",
+			"solution_query": "SELECT COUNT(*) AS totalCustomers FROM customers"
+		},
+		{
+			"number": 7,
+			"text": "List the total number of products in the database.",
+			"solution_query": "SELECT COUNT(*) AS totalProducts FROM products"
+		},
+		{
+			"number": 8,
+			"text": "List the total buy price of all products in the database.",
+			"solution_query": "SELECT SUM(buyPrice) AS totalBuyPrice FROM products"
+		},
+		{
+			"number": 9,
+			"text": "List the average buy price of all products in the database.",
+			"solution_query": "SELECT AVG(buyPrice) AS avgBuyPrice FROM products"
+		},
+		{
+			"number": 10,
+			"text": "List the minimum buy price of products in the database.",
+			"solution_query": "SELECT MIN(buyPrice) AS minBuyPrice FROM products"
+		},
+		{
+			"number": 11,
+			"text": "List the maximum buy price of products in the database.",
+			"solution_query": "SELECT MAX(buyPrice) AS maxBuyPrice FROM products"
+		},
+		{
+			"number": 12,
+			"text": "List all distinct countries where customers are located.",
+			"solution_query": "SELECT DISTINCT country FROM customers"
+		},
+		{
+			"number": 13,
+			"text": "List the productCode, productName, and buyPrice for the product with the highest buy price.",
+			"solution_query": "SELECT productCode, productName, buyPrice FROM products WHERE buyPrice = (SELECT MAX(buyPrice) FROM products)"
+		},
+		{
+			"number": 14,
+			"text": "List the productCode, productName, and buyPrice for the product with the lowest buy price.",
+			"solution_query": "SELECT productCode, productName, buyPrice FROM products WHERE buyPrice = (SELECT MIN(buyPrice) FROM products)"
+		},
+		{
+			"number": 15,
+			"text": "List the customerName and creditLimit for customers with credit limits above $50,000 ordered by creditLimit in descending order.",
+			"solution_query": "SELECT customerName, creditLimit FROM customers WHERE creditLimit > 50000 ORDER BY creditLimit DESC"
+		},
+		{
+			"number": 16,
+			"text": "List the employeeNumber, firstName, and lastName of employees ordered by firstName in ascending order.",
+			"solution_query": "SELECT employeeNumber, firstName, lastName FROM employees ORDER BY firstName ASC"
+		},
+		{
+			"number": 17,
+			"text": "List the productCode, productName, and quantityInStock for all products ordered by quantityInStock in ascending order.",
+			"solution_query": "SELECT productCode, productName, quantityInStock FROM products ORDER BY quantityInStock ASC"
+		},
+		{
+			"number": 18,
+			"text": "List the orderNumber, orderDate, and status for orders ordered by orderDate in descending order.",
+			"solution_query": "SELECT orderNumber, orderDate, status FROM orders ORDER BY orderDate DESC"
+		},
+		{
+			"number": 19,
+			"text": "List the total number of orders in the database.",
+			"solution_query": "SELECT COUNT(*) AS totalOrders FROM orders"
+		},
+		{
+			"number": 20,
+			"text": "List the total sales amount of all orders in the database.",
+			"solution_query": "SELECT SUM(quantityOrdered * priceEach) AS totalSales FROM orderdetails"
+		},
+		{
+			"number": 21,
+			"text": "List the average sales amount of all orders in the database.",
+			"solution_query": "SELECT AVG(quantityOrdered * priceEach) AS avgSales FROM orderdetails"
+		},
+		{
+			"number": 22,
+			"text": "List the productCode, productName, and buyPrice for products with a buyPrice above $100 ordered by buyPrice in ascending order.",
+			"solution_query": "SELECT productCode, productName, buyPrice FROM products WHERE buyPrice > 100 ORDER BY buyPrice ASC"
+		},
+		{
+			"number": 23,
+			"text": "List the productCode, productName, and buyPrice for products with a buyPrice below $50 ordered by productName in descending order.",
+			"solution_query": "SELECT productCode, productName, buyPrice FROM products WHERE buyPrice < 50 ORDER BY productName DESC"
+		},
+		{
+			"number": 24,
+			"text": "List all customer names and their countries ordered by country in alphabetical order.",
+			"solution_query": "SELECT customerName, country FROM customers ORDER BY country ASC"
+		},
+		{
+			"number": 25,
+			"text": "List the total quantity of products ordered in all orders.",
+			"solution_query": "SELECT SUM(quantityOrdered) AS totalQuantityOrdered FROM orderdetails"
+		}
+	]
+}
