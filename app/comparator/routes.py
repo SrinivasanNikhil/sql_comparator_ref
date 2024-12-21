@@ -11,6 +11,37 @@ from app.comparator.services import SQLComparator
 def index():
     return render_template('comparator/index.html')
 
+@bp.route('/get_modules', methods=['GET', 'POST'])
+@login_required
+def get_modules():
+    current_app.logger.info("get_modules route called")
+    try:
+        # Assuming your reference files are stored in a specific directory
+        reference_dir = current_app.config['REFERENCE_FILES_DIR']
+        modules = []
+        
+        # List all JSON files in the reference directory
+        for filename in os.listdir(reference_dir):
+            if filename.endswith('.json'):
+                # Read the JSON file to get its title (if available)
+                file_path = os.path.join(reference_dir, filename)
+                try:
+                    with open(file_path, 'r') as f:
+                        data = json.load(f)
+                        title = data.get('title', filename)  # fallback to filename if no title
+                except:
+                    title = filename
+                
+                modules.append({
+                    'filename': filename,
+                    'title': title
+                })
+        
+        return jsonify({'modules': modules})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
 @bp.route('/compare_files', methods=['POST'])
 @login_required
 def compare_files():
@@ -55,7 +86,9 @@ def compare_single_query():
     
     try:
         # Load the questions file
-        questions_path = os.path.join(current_app.root_path, 'questions', module_name)
+        questions_path = os.path.join(current_app.root_path, 'reference_files', module_name)
+        if not os.path.abspath(os.path.realpath(questions_path)).startswith(os.getcwd()): # import os
+            raise RuntimeError('Filepath falls outside the base directory')
         with open(questions_path, 'r') as f:
             questions_data = json.load(f)
         
@@ -91,7 +124,7 @@ def compare_single_query():
 @bp.route('/get_question_modules')
 @login_required
 def get_question_modules():
-    questions_dir = os.path.join(current_app.root_path, 'questions')
+    questions_dir = current_app.config['REFERENCE_FILES_DIR']
     try:
         modules = [f for f in os.listdir(questions_dir) 
                   if f.endswith('.json')]
@@ -109,6 +142,7 @@ def get_question_modules():
                         'title': title
                     })
             except:
+                current_app.logger.error(f"Error reading module {module}: {e}")
                 # If there's an error reading the file, just use the filename
                 module_list.append({
                     'filename': module,
@@ -117,6 +151,7 @@ def get_question_modules():
                 
         return jsonify({'modules': module_list})
     except Exception as e:
+        current_app.logger.error(f"Error listing modules: {e}")
         return jsonify({'error': str(e)}), 500
 
 
@@ -124,7 +159,7 @@ def get_question_modules():
 @login_required
 def get_module_questions(module_name):
     try:
-        questions_path = os.path.join(current_app.root_path, 'questions', module_name)
+        questions_path = os.path.join(current_app.config['REFERENCE_FILES_DIR'], module_name)
         with open(questions_path, 'r') as f:
             questions_data = json.load(f)
         
@@ -140,6 +175,7 @@ def get_module_questions(module_name):
         return jsonify({'questions': questions})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
 
 
 # @comparator_bp.route('/compare_files', methods=['POST'])

@@ -47,7 +47,7 @@ class SQLComparator:
         """
         try:
             # Load reference file
-            questions_path = os.path.join(current_app.root_path, 'questions', reference_file)
+            questions_path = os.path.join(current_app.root_path, 'reference_files', reference_file)
             with open(questions_path, 'r') as f:
                 reference_data = json.load(f)
 

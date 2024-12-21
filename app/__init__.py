@@ -9,6 +9,10 @@ login_manager = LoginManager()
 def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
+    
+    # Ensure required directories exist
+    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+    os.makedirs(app.config['REFERENCE_FILES_DIR'], exist_ok=True)
 
     # Initialize extensions
     login_manager.init_app(app)
