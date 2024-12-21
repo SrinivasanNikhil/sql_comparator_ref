@@ -381,7 +381,7 @@
                     const template = document.getElementById('queryComparisonTemplate');
                     data.results.forEach(result => {
                         const resultElement = template.content.cloneNode(true);
-
+                        //console.log(result.comparison);
                         // Set question number
                         resultElement.querySelector('.question-number').textContent = result.question_number;
 
@@ -398,7 +398,7 @@
 
                             // Set query text
                             resultElement.querySelector('.user-query pre').textContent =
-                                comparison.user_query || 'No query provided';
+                                result.user_query || 'No query provided';
                             resultElement.querySelector('.reference-query pre').textContent =
                                 comparison.reference_query || 'No reference query available';
 
@@ -410,10 +410,11 @@
                             resultElement.querySelector('.query-match-status span').textContent =
                                 comparison.query_analysis.exact_match ? 'Exact Match' : 'Partial Match';
 
+                            //console.log(comparison.result_comparison.columns.match);
                             // Set comparison results
                             if (comparison.result_comparison) {
-                                const columnsMatch = comparison.result_comparison.columns_match;
-                                const rowsMatch = comparison.result_comparison.row_count_match;
+                                const columnsMatch = comparison.result_comparison.columns.match;
+                                const rowsMatch = comparison.result_comparison.record_counts.user === comparison.result_comparison.record_counts.reference;
 
                                 resultElement.querySelector('.columns-comparison').textContent =
                                     columnsMatch ? '✓ Columns match' : '✗ Columns do not match';

@@ -79,6 +79,9 @@ class SQLComparator:
                     user_q['solution_query'], ref_query
                 )
                 
+                #log the comparison
+                current_app.logger.info(f"Comparison for question {ref_num}: {comparison}")
+                
                 # Calculate score based on query analysis and results
                 score = SQLComparator._calculate_query_score(comparison)
                 total_score += score['score']
@@ -88,7 +91,8 @@ class SQLComparator:
                     'question_number': ref_num,
                     'comparison': comparison,
                     'score': score['score'],
-                    'max_score': score['max_score']
+                    'max_score': score['max_score'],
+                    'user_query': user_q['solution_query']
                 })
 
             return {
@@ -121,12 +125,12 @@ class SQLComparator:
             score -= len(query_analysis['additional_terms'])
 
         # Deduct points for result mismatches
-        if comparison['result_comparison']:
-            result_comparison = comparison['result_comparison']
-            if not result_comparison.get('columns_match', False):
-                score -= 3
-            if not result_comparison.get('row_count_match', False):
-                score -= 3
+        # if comparison['result_comparison']:
+        #     result_comparison = comparison['result_comparison']
+        #     if not result_comparison.get('columns_match', False):
+        #         score -= 3
+        #     if not result_comparison.get('row_count_match', False):
+        #         score -= 3
 
         return {
             'score': max(0, score),  # Don't allow negative scores
@@ -161,6 +165,7 @@ class SQLComparator:
         terms = normalized.split()
         return [term for term in terms if term not in {'select', 'from', 'where', 'and', 'or'}]
 
+
     @staticmethod
     def _compare_results(user_results: List[Dict], reference_results: List[Dict]) -> Dict:
         """
@@ -169,6 +174,14 @@ class SQLComparator:
         user_columns = list(user_results[0].keys()) if user_results else []
         reference_columns = list(reference_results[0].keys()) if reference_results else []
 
+        #log the user columns and reference columns
+        current_app.logger.info(f"User columns: {user_columns}")
+        current_app.logger.info(f"Reference columns: {reference_columns}")
+        
+        # Sort results for consistent comparison
+        user_results_sorted = sorted(user_results, key=lambda x: tuple(x.items()))
+        reference_results_sorted = sorted(reference_results, key=lambda x: tuple(x.items()))
+
         return {
             'columns': {
                 'user': user_columns,
@@ -176,8 +189,29 @@ class SQLComparator:
                 'match': set(user_columns) == set(reference_columns)
             },
             'record_counts': {
-                'user': len(user_results),
-                'reference': len(reference_results)
+                'user': len(user_results_sorted),
+                'reference': len(reference_results_sorted)
             },
-            'exact_match': user_results == reference_results
+            'exact_match': user_results_sorted == reference_results_sorted
         }
+    
+    # @staticmethod
+    # def _compare_results(user_results: List[Dict], reference_results: List[Dict]) -> Dict:
+    #     """
+    #     Compare the results of two queries.
+    #     """
+    #     user_columns = list(user_results[0].keys()) if user_results else []
+    #     reference_columns = list(reference_results[0].keys()) if reference_results else []
+
+    #     return {
+    #         'columns': {
+    #             'user': user_columns,
+    #             'reference': reference_columns,
+    #             'match': set(user_columns) == set(reference_columns)
+    #         },
+    #         'record_counts': {
+    #             'user': len(user_results),
+    #             'reference': len(reference_results)
+    #         },
+    #         'exact_match': user_results == reference_results
+    #     }

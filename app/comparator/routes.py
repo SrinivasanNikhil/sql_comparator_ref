@@ -14,7 +14,7 @@ def index():
 @bp.route('/get_modules', methods=['GET', 'POST'])
 @login_required
 def get_modules():
-    current_app.logger.info("get_modules route called")
+    #current_app.logger.info("get_modules route called")
     try:
         # Assuming your reference files are stored in a specific directory
         reference_dir = current_app.config['REFERENCE_FILES_DIR']
