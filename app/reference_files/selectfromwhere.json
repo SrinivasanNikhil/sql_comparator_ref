@@ -4,117 +4,117 @@
 		{
 			"number": 1,
 			"text": "List the customerName, city, state, and country for customers from the USA.",
-			"solution_query": "SELECT customerName, city, state, country FROM customers WHERE country = 'USA'"
+			"solution_query": "SELECT customerName, city, state, country FROM Customers WHERE country = 'USA'"
 		},
 		{
 			"number": 2,
 			"text": "List the productCode, productName, and buyPrice for products with a buy price greater than $100.",
-			"solution_query": "SELECT productCode, productName, buyPrice FROM products WHERE buyPrice > 100"
+			"solution_query": "SELECT productCode, productName, buyPrice FROM Products WHERE buyPrice > 100"
 		},
 		{
 			"number": 3,
 			"text": "List the employeeNumber, firstName, lastName, and jobTitle for employees who are Sales Reps.",
-			"solution_query": "SELECT employeeNumber, firstName, lastName, jobTitle FROM employees WHERE jobTitle = 'Sales Rep'"
+			"solution_query": "SELECT employeeNumber, firstName, lastName, jobTitle FROM Employees WHERE jobTitle = 'Sales Rep'"
 		},
 		{
 			"number": 4,
 			"text": "List the productCode, productName, productLine, and buyPrice for products in the 'Classic Cars' product line.",
-			"solution_query": "SELECT productCode, productName, productLine, buyPrice FROM products WHERE productLine = 'Classic Cars'"
+			"solution_query": "SELECT productCode, productName, productLine, buyPrice FROM Products WHERE productLine = 'Classic Cars'"
 		},
 		{
 			"number": 5,
 			"text": "List the customerNumber, customerName, and creditLimit for customers with a credit limit above $100,000.",
-			"solution_query": "SELECT customerNumber, customerName, creditLimit FROM customers WHERE creditLimit > 100000"
+			"solution_query": "SELECT customerNumber, customerName, creditLimit FROM Customers WHERE creditLimit > 100000"
 		},
 		{
 			"number": 6,
 			"text": "List the productCode, productName, and quantityInStock for products with less than 1000 units in stock.",
-			"solution_query": "SELECT productCode, productName, quantityInStock FROM products WHERE quantityInStock < 1000"
+			"solution_query": "SELECT productCode, productName, quantityInStock FROM Products WHERE quantityInStock < 1000"
 		},
 		{
 			"number": 7,
 			"text": "List the orderNumber, orderDate, and status for all orders that are 'On Hold'.",
-			"solution_query": "SELECT orderNumber, orderDate, status FROM orders WHERE status = 'On Hold'"
+			"solution_query": "SELECT orderNumber, orderDate, status FROM Orders WHERE status = 'On Hold'"
 		},
 		{
 			"number": 8,
 			"text": "List the customerName, country, and city for customers from Germany or France.",
-			"solution_query": "SELECT customerName, country, city FROM customers WHERE country IN ('Germany', 'France')"
+			"solution_query": "SELECT customerName, country, city FROM Customers WHERE country IN ('Germany', 'France')"
 		},
 		{
 			"number": 9,
 			"text": "List the productCode and productName for products with 'BMW' in their name.",
-			"solution_query": "SELECT productCode, productName FROM products WHERE productName REGEXP 'BMW'"
+			"solution_query": "SELECT productCode, productName FROM Products WHERE productName REGEXP 'BMW'"
 		},
 		{
 			"number": 10,
 			"text": "List the customerName, contactFirstName, and contactLastName for customers whose contact first name starts with 'J'.",
-			"solution_query": "SELECT customerName, contactFirstName, contactLastName FROM customers WHERE contactFirstName REGEXP '^J'"
+			"solution_query": "SELECT customerName, contactFirstName, contactLastName FROM Customers WHERE contactFirstName REGEXP '^J'"
 		},
 		{
 			"number": 11,
 			"text": "List the orderNumber and orderDate for orders placed between January 1, 2004, and June 30, 2004.",
-			"solution_query": "SELECT orderNumber, orderDate FROM orders WHERE orderDate BETWEEN '2004-01-01' AND '2004-06-30'"
+			"solution_query": "SELECT orderNumber, orderDate FROM Orders WHERE orderDate BETWEEN '2004-01-01' AND '2004-06-30'"
 		},
 		{
 			"number": 12,
 			"text": "List the productCode, productName, and productScale for products with a vendor scale of 1:18.",
-			"solution_query": "SELECT productCode, productName, productScale FROM products WHERE productScale = '1:18'"
+			"solution_query": "SELECT productCode, productName, productScale FROM Products WHERE productScale = '1:18'"
 		},
 		{
 			"number": 13,
 			"text": "List the customerName, country, and state for customers without a state specified.",
-			"solution_query": "SELECT customerName, country, state FROM customers WHERE state IS NULL"
+			"solution_query": "SELECT customerName, country, state FROM Customers WHERE state IS NULL"
 		},
 		{
 			"number": 14,
 			"text": "List the productCode, productName, and buyPrice for products with a price between $50 and $75.",
-			"solution_query": "SELECT productCode, productName, buyPrice FROM products WHERE buyPrice BETWEEN 50 AND 75"
+			"solution_query": "SELECT productCode, productName, buyPrice FROM Products WHERE buyPrice BETWEEN 50 AND 75"
 		},
 		{
 			"number": 15,
 			"text": "List the productCode and productName for products that have either 'Ford' or 'Chevy' in their names.",
-			"solution_query": "SELECT productCode, productName FROM products WHERE productName REGEXP 'Ford|Chevy'"
+			"solution_query": "SELECT productCode, productName FROM Products WHERE productName REGEXP 'Ford|Chevy'"
 		},
 		{
 			"number": 16,
 			"text": "List the customerName and phone for customers with phone numbers that don't start with '+'.",
-			"solution_query": "SELECT customerName, phone FROM customers WHERE phone REGEXP '^[^\\+]'"
+			"solution_query": "SELECT customerName, phone FROM Customers WHERE phone REGEXP '^[^\\+]'"
 		},
 		{
 			"number": 17,
 			"text": "List the productCode, productName, and productLine for products that are ships or planes.",
-			"solution_query": "SELECT productCode, productName, productLine FROM products WHERE productLine IN ('Ships', 'Planes')"
+			"solution_query": "SELECT productCode, productName, productLine FROM Products WHERE productLine IN ('Ships', 'Planes')"
 		},
 		{
 			"number": 18,
 			"text": "List the orderNumber, status, and comments for orders with comments mentioning 'delayed'.",
-			"solution_query": "SELECT orderNumber, status, comments FROM orders WHERE comments REGEXP 'delayed'"
+			"solution_query": "SELECT orderNumber, status, comments FROM Orders WHERE comments REGEXP 'delayed'"
 		},
 		{
 			"number": 19,
 			"text": "List the customerName, city, and country for customers from cities starting with 'San'.",
-			"solution_query": "SELECT customerName, city, country FROM customers WHERE city REGEXP '^San'"
+			"solution_query": "SELECT customerName, city, country FROM Customers WHERE city REGEXP '^San'"
 		},
 		{
 			"number": 20,
 			"text": "List the productCode, productName, buyPrice, and MSRP for products with an MSRP at least twice their buy price.",
-			"solution_query": "SELECT productCode, productName, buyPrice, MSRP FROM products WHERE MSRP >= buyPrice * 2"
+			"solution_query": "SELECT productCode, productName, buyPrice, MSRP FROM Products WHERE MSRP >= buyPrice * 2"
 		},
 		{
 			"number": 21,
 			"text": "List the customerName, country, and creditLimit for customers with credit limits between $50,000 and $100,000 who are not from the USA.",
-			"solution_query": "SELECT customerName, country, creditLimit FROM customers WHERE creditLimit BETWEEN 50000 AND 100000 AND country != 'USA'"
+			"solution_query": "SELECT customerName, country, creditLimit FROM Customers WHERE creditLimit BETWEEN 50000 AND 100000 AND country != 'USA'"
 		},
 		{
 			"number": 22,
 			"text": "List the productCode, productName, and quantityInStock for products with either no units in stock or no units on order.",
-			"solution_query": "SELECT productCode, productName, quantityInStock FROM products WHERE quantityInStock = 0 OR quantityOnOrder = 0"
+			"solution_query": "SELECT productCode, productName, quantityInStock FROM Products WHERE quantityInStock = 0 OR quantityOnOrder = 0"
 		},
 		{
 			"number": 23,
 			"text": "List the orderNumber, orderDate, and status for orders placed in the last quarter of 2004.",
-			"solution_query": "SELECT orderNumber, orderDate, status FROM orders WHERE orderDate BETWEEN '2004-10-01' AND '2004-12-31'"
+			"solution_query": "SELECT orderNumber, orderDate, status FROM Orders WHERE orderDate BETWEEN '2004-10-01' AND '2004-12-31'"
 		}
 	]
 }

@@ -175,8 +175,8 @@ class SQLComparator:
         reference_columns = list(reference_results[0].keys()) if reference_results else []
 
         #log the user columns and reference columns
-        current_app.logger.info(f"User columns: {user_columns}")
-        current_app.logger.info(f"Reference columns: {reference_columns}")
+        #current_app.logger.info(f"User columns: {user_columns}")
+        #current_app.logger.info(f"Reference columns: {reference_columns}")
         
         # Sort results for consistent comparison
         user_results_sorted = sorted(user_results, key=lambda x: tuple(x.items()))

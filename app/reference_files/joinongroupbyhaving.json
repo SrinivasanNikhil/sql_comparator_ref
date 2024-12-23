@@ -3,128 +3,128 @@
 	"questions": [
 		{
 			"number": 1,
-			"text": "List the customer name, city, state and country for customers from the USA.",
-			"solution_query": "SELECT customerName, city, state, country FROM customers WHERE country = 'USA'"
+			"text": "List the customerName and the total sales amount for each customer, ordered by total sales amount in descending order.",
+			"solution_query": "SELECT customerName, SUM(quantityOrdered * priceEach) AS totalSales FROM Customers JOIN Orders ON Customers.customerNumber = Orders.customerNumber JOIN OrderDetails ON Orders.orderNumber = OrderDetails.orderNumber GROUP BY customerName ORDER BY totalSales DESC"
 		},
 		{
 			"number": 2,
-			"text": "List the product code, name and buy price of all products with a price greater than $100.",
-			"solution_query": "SELECT productCode, productName, buyPrice FROM products WHERE buyPrice > 100"
+			"text": "List the productName and the total quantity ordered for each product, ordered by total quantity in descending order.",
+			"solution_query": "SELECT productName, SUM(quantityOrdered) AS totalQuantity FROM Products JOIN OrderDetails ON Products.productCode = OrderDetails.productCode GROUP BY productName ORDER BY totalQuantity DESC"
 		},
 		{
 			"number": 3,
-			"text": "List the employee number, first name, last name, job title of all employees who are Sales Representatives.",
-			"solution_query": "SELECT employeeNumber, firstName, lastName, jobTitle FROM employees WHERE jobTitle = 'Sales Rep'"
+			"text": "List the country and the number of customers in each country, ordered by the number of customers in descending order.",
+			"solution_query": "SELECT country, COUNT(*) AS customerCount FROM Customers GROUP BY country ORDER BY customerCount DESC"
 		},
 		{
 			"number": 4,
-			"text": "List the orderNumber, orderDate, status of all orders that were placed in 2004.",
-			"solution_query": "SELECT orderNumber, orderDate, status FROM orders WHERE YEAR(orderDate) = 2004"
+			"text": "List the officeCode, city, and the total number of employees in each office.",
+			"solution_query": "SELECT officeCode, city, COUNT(employeeNumber) AS totalEmployees FROM Offices JOIN Employees ON Offices.officeCode = Employees.officeCode GROUP BY officeCode, city"
 		},
 		{
 			"number": 5,
-			"text": "List the productCode, productName, productLine, buyPrice of all products in the 'Classic Cars' product line.",
-			"solution_query": "SELECT productCode, productName, productLine, buyPrice FROM products WHERE productLine = 'Classic Cars'"
+			"text": "List the productLine and the average buy price for products in each product line, ordered by average buy price in descending order.",
+			"solution_query": "SELECT productLine, AVG(buyPrice) AS avgBuyPrice FROM Products GROUP BY productLine ORDER BY avgBuyPrice DESC"
 		},
 		{
 			"number": 6,
-			"text": "List the customerNumber, customerName, creditLimit of all customers with credit limit above $100,000.",
-			"solution_query": "SELECT customerNumber, customerName, creditLimit FROM customers WHERE creditLimit > 100000"
+			"text": "List the productName and the total sales amount for each product that has generated more than $10,000 in sales.",
+			"solution_query": "SELECT productName, SUM(quantityOrdered * priceEach) AS totalSales FROM Products JOIN OrderDetails ON Products.productCode = OrderDetails.productCode GROUP BY productName HAVING totalSales > 10000"
 		},
 		{
 			"number": 7,
-			"text": "List all products with less than 1000 units in stock.",
-			"solution_query": "SELECT productCode, productName, quantityInStock FROM products WHERE quantityInStock < 1000"
+			"text": "List the customerName and the number of orders for each customer who has placed more than 5 orders.",
+			"solution_query": "SELECT customerName, COUNT(orderNumber) AS orderCount FROM Customers JOIN Orders ON Customers.customerNumber = Orders.customerNumber GROUP BY customerName HAVING orderCount > 5"
 		},
 		{
 			"number": 8,
-			"text": "Find all orders that are 'On Hold'.",
-			"solution_query": "SELECT orderNumber, orderDate, status FROM orders WHERE status = 'On Hold'"
+			"text": "List the employeeNumber, jobTitle, and the total sales amount for each employee who has generated more than $50,000 in sales.",
+			"solution_query": "SELECT employeeNumber, jobTitle, SUM(quantityOrdered * priceEach) AS totalSales FROM Employees JOIN Customers ON Employees.employeeNumber = Customers.salesRepEmployeeNumber JOIN Orders ON Customers.customerNumber = Orders.customerNumber JOIN OrderDetails ON Orders.orderNumber = OrderDetails.orderNumber GROUP BY employeeNumber, jobTitle HAVING totalSales > 50000"
 		},
 		{
 			"number": 9,
-			"text": "List customers from Germany or France.",
-			"solution_query": "SELECT customerName, country, city FROM customers WHERE country IN ('Germany', 'France')"
+			"text": "List the country and the total credit limit of customers in each country, ordered by total credit limit in descending order.",
+			"solution_query": "SELECT country, SUM(creditLimit) AS totalCreditLimit FROM Customers GROUP BY country ORDER BY totalCreditLimit DESC"
 		},
 		{
 			"number": 10,
-			"text": "Find products with 'BMW' in their name.",
-			"solution_query": "SELECT productCode, productName FROM products WHERE productName REGEXP 'BMW'"
+			"text": "List the productLine and the maximum buy price for each product line, ordered by product line.",
+			"solution_query": "SELECT productLine, MAX(buyPrice) AS maxBuyPrice FROM Products GROUP BY productLine ORDER BY productLine ASC"
 		},
 		{
 			"number": 11,
-			"text": "List all customers whose contact first name starts with 'J'.",
-			"solution_query": "SELECT customerName, contactFirstName, contactLastName FROM customers WHERE contactFirstName LIKE 'J%'"
+			"text": "List the city and the total number of employees in each city that has more than 3 employees.",
+			"solution_query": "SELECT city, COUNT(employeeNumber) AS employeeCount FROM Offices JOIN Employees ON Offices.officeCode = Employees.officeCode GROUP BY city HAVING employeeCount > 3"
 		},
 		{
 			"number": 12,
-			"text": "Find orders placed between January 1, 2004, and June 30, 2004.",
-			"solution_query": "SELECT orderNumber, orderDate FROM orders WHERE orderDate BETWEEN '2004-01-01' AND '2004-06-30'"
+			"text": "List the productLine and the total quantity ordered for each product line.",
+			"solution_query": "SELECT productLine, SUM(quantityOrdered) AS totalQuantity FROM Products JOIN OrderDetails ON Products.productCode = OrderDetails.productCode GROUP BY productLine"
 		},
 		{
 			"number": 13,
-			"text": "List products with vendor scale of 1:18.",
-			"solution_query": "SELECT productCode, productName, productScale FROM products WHERE productScale = '1:18'"
+			"text": "List the employeeNumber and the number of customers managed by each employee.",
+			"solution_query": "SELECT employeeNumber, COUNT(customerNumber) AS customerCount FROM Employees LEFT JOIN Customers ON Employees.employeeNumber = Customers.salesRepEmployeeNumber GROUP BY employeeNumber"
 		},
 		{
 			"number": 14,
-			"text": "Find customers without a state specified.",
-			"solution_query": "SELECT customerName, country, state FROM customers WHERE state IS NULL"
+			"text": "List the productName and the average quantity ordered for each product.",
+			"solution_query": "SELECT productName, AVG(quantityOrdered) AS avgQuantity FROM Products JOIN OrderDetails ON Products.productCode = OrderDetails.productCode GROUP BY productName"
 		},
 		{
 			"number": 15,
-			"text": "List products with price between $50 and $75.",
-			"solution_query": "SELECT productCode, productName, buyPrice FROM products WHERE buyPrice BETWEEN 50 AND 75"
+			"text": "List the country and the average credit limit for customers in each country.",
+			"solution_query": "SELECT country, AVG(creditLimit) AS avgCreditLimit FROM Customers GROUP BY country"
 		},
 		{
 			"number": 16,
-			"text": "Find all employees in offices located in the USA.",
-			"solution_query": "SELECT firstName, lastName, officeCode FROM employees WHERE officeCode IN (SELECT officeCode FROM offices WHERE country = 'USA')"
+			"text": "List the customerName and the total sales amount for each customer whose total sales exceed $25,000.",
+			"solution_query": "SELECT customerName, SUM(quantityOrdered * priceEach) AS totalSales FROM Customers JOIN Orders ON Customers.customerNumber = Orders.customerNumber JOIN OrderDetails ON Orders.orderNumber = OrderDetails.orderNumber GROUP BY customerName HAVING totalSales > 25000"
 		},
 		{
 			"number": 17,
-			"text": "List products that have either 'Ford' or 'Chevy' in their names.",
-			"solution_query": "SELECT productCode, productName FROM products WHERE productName LIKE '%Ford%' OR productName LIKE '%Chevy%'"
+			"text": "List the productName and the total sales amount for each product ordered by total sales amount in descending order.",
+			"solution_query": "SELECT productName, SUM(quantityOrdered * priceEach) AS totalSales FROM Products JOIN OrderDetails ON Products.productCode = OrderDetails.productCode GROUP BY productName ORDER BY totalSales DESC"
 		},
 		{
 			"number": 18,
-			"text": "Find customers with phone numbers that don't start with '+'.",
-			"solution_query": "SELECT customerName, phone FROM customers WHERE phone NOT LIKE '+%'"
+			"text": "List the country and the number of customers in each country that has more than 2 customers.",
+			"solution_query": "SELECT country, COUNT(*) AS customerCount FROM Customers GROUP BY country HAVING customerCount > 2"
 		},
 		{
 			"number": 19,
-			"text": "List all products that are ships or planes.",
-			"solution_query": "SELECT productCode, productName, productLine FROM products WHERE productLine IN ('Ships', 'Planes')"
+			"text": "List the employeeNumber and the total sales amount generated by each employee, ordered by total sales in descending order.",
+			"solution_query": "SELECT employeeNumber, SUM(quantityOrdered * priceEach) AS totalSales FROM Employees JOIN Customers ON Employees.employeeNumber = Customers.salesRepEmployeeNumber JOIN Orders ON Customers.customerNumber = Orders.customerNumber JOIN OrderDetails ON Orders.orderNumber = OrderDetails.orderNumber GROUP BY employeeNumber ORDER BY totalSales DESC"
 		},
 		{
 			"number": 20,
-			"text": "Find orders with comments mentioning 'delayed'.",
-			"solution_query": "SELECT orderNumber, status, comments FROM orders WHERE comments LIKE '%delayed%'"
+			"text": "List the productLine and the number of products in each product line.",
+			"solution_query": "SELECT productLine, COUNT(*) AS productCount FROM Products GROUP BY productLine"
 		},
 		{
 			"number": 21,
-			"text": "List customers from cities starting with 'San'.",
-			"solution_query": "SELECT customerName, city, country FROM customers WHERE city LIKE 'San%'"
+			"text": "List the city and the total number of orders placed by customers in each city.",
+			"solution_query": "SELECT city, COUNT(orderNumber) AS orderCount FROM Customers JOIN Orders ON Customers.customerNumber = Orders.customerNumber GROUP BY city"
 		},
 		{
 			"number": 22,
-			"text": "Find products with MSRP at least twice their buy price.",
-			"solution_query": "SELECT productCode, productName, buyPrice, MSRP FROM products WHERE MSRP >= buyPrice * 2"
+			"text": "List the productName and the total quantity ordered for each product that has been ordered more than 1,000 times.",
+			"solution_query": "SELECT productName, SUM(quantityOrdered) AS totalQuantity FROM Products JOIN OrderDetails ON Products.productCode = OrderDetails.productCode GROUP BY productName HAVING totalQuantity > 1000"
 		},
 		{
 			"number": 23,
-			"text": "List all customers with credit limit between $50,000 and $100,000 who are not from the USA.",
-			"solution_query": "SELECT customerName, country, creditLimit FROM customers WHERE creditLimit BETWEEN 50000 AND 100000 AND country != 'USA'"
+			"text": "List the productLine and the total sales amount for each product line.",
+			"solution_query": "SELECT productLine, SUM(quantityOrdered * priceEach) AS totalSales FROM Products JOIN OrderDetails ON Products.productCode = OrderDetails.productCode GROUP BY productLine"
 		},
 		{
 			"number": 24,
-			"text": "Find products with either no units in stock or no units on order.",
-			"solution_query": "SELECT productCode, productName, quantityInStock FROM products WHERE quantityInStock = 0 OR quantityOnOrder = 0"
+			"text": "List the employeeNumber and the number of orders handled by each employee.",
+			"solution_query": "SELECT employeeNumber, COUNT(orderNumber) AS orderCount FROM Employees JOIN Customers ON Employees.employeeNumber = Customers.salesRepEmployeeNumber JOIN Orders ON Customers.customerNumber = Orders.customerNumber GROUP BY employeeNumber"
 		},
 		{
 			"number": 25,
-			"text": "List all orders placed in the last quarter of 2004.",
-			"solution_query": "SELECT orderNumber, orderDate, status FROM orders WHERE orderDate BETWEEN '2004-10-01' AND '2004-12-31'"
+			"text": "List the productName and the total sales amount for each product that has generated sales above $5,000.",
+			"solution_query": "SELECT productName, SUM(quantityOrdered * priceEach) AS totalSales FROM Products JOIN OrderDetails ON Products.productCode = OrderDetails.productCode GROUP BY productName HAVING totalSales > 5000"
 		}
 	]
 }
