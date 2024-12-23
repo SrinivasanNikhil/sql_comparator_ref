@@ -5,3 +5,4 @@ Flask-Login==0.6.3
 python-dotenv==1.0.0
 PyJWT==2.8.0
 sqlparse==0.4.4
+pyOpenSSL==24.3.0
