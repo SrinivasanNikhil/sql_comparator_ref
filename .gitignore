@@ -7,3 +7,5 @@ env/
 venv/
 ENV/
 .ebextensions/
+ssl/
+questions/
