@@ -168,6 +168,11 @@
                     Single Query Comparison
                 </button>
             </li>
+            <li class="nav-item ms-auto" role="presentation">
+                <button class="nav-link" data-bs-toggle="modal" data-bs-target="#schemaModal" type="button">
+                    View Database Schema
+                </button>
+            </li>
         </ul>
 
         <div class="tab-content" id="compareContent">
@@ -302,6 +307,24 @@
                 </div>
             </template>
 
+            <div class="modal fade" id="schemaModal" tabindex="-1" aria-labelledby="schemaModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="schemaModalLabel">ClassicModels Database Schema</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body text-center">
+                            <img src="https://www.richardtwatson.com/open/images/general/ClassicModels.png"
+                                alt="ClassicModels Database Schema" class="img-fluid" style="max-width: 100%;">
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             <div id="results" class="comparison-results" style="display: none;">
                 <h3>Comparison Results</h3>
