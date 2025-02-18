@@ -1,5 +1,5 @@
 # Use the official Python slim image as base
-FROM python:3.9-slim
+FROM python:3.9-slim AS base
 
 # Set working directory
 WORKDIR /app
@@ -35,8 +35,8 @@ ENV PYTHONUNBUFFERED=1
 
 # Expose port
 EXPOSE 5000
-EXPOSE 443
+#EXPOSE 443
 
 # Run the application
-#CMD ["flask", "run"]
-CMD ["flask", "run", "--cert=app/ssl/certificate.crt", "--key=app/ssl/private.key", "--port=443"]
+CMD ["flask", "run"]
+#CMD ["flask", "run", "--cert=app/ssl/certificate.crt", "--key=app/ssl/private.key", "--port=443"]
