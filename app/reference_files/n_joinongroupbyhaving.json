@@ -1,0 +1,71 @@
+{
+	"title": "Join, Group By and Having",
+	"database": "Northwind",
+	"questions": [
+		{
+			"number": 1,
+			"text": "List the OrderID, OrderDate, and CompanyName of customers who placed orders.",
+			"solution_query": "SELECT Orders.OrderID, Orders.OrderDate, Customers.CompanyName FROM Orders JOIN Customers ON Orders.CustomerID = Customers.CustomerID"
+		},
+		{
+			"number": 2,
+			"text": "List the ProductName and CategoryName for each product.",
+			"solution_query": "SELECT Products.ProductName, Categories.CategoryName FROM Products JOIN Categories ON Products.CategoryID = Categories.CategoryID"
+		},
+		{
+			"number": 3,
+			"text": "List the EmployeeID, FirstName, LastName, and the number of orders each employee has processed, grouped by employee.",
+			"solution_query": "SELECT Employees.EmployeeID, Employees.FirstName, Employees.LastName, COUNT(Orders.OrderID) AS OrderCount FROM Employees JOIN Orders ON Employees.EmployeeID = Orders.EmployeeID GROUP BY Employees.EmployeeID, Employees.FirstName, Employees.LastName"
+		},
+		{
+			"number": 4,
+			"text": "List the SupplierID, CompanyName, and the number of products supplied by each supplier, only showing suppliers providing more than 5 products.",
+			"solution_query": "SELECT Suppliers.SupplierID, Suppliers.CompanyName, COUNT(Products.ProductID) AS ProductCount FROM Suppliers JOIN Products ON Suppliers.SupplierID = Products.SupplierID GROUP BY Suppliers.SupplierID, Suppliers.CompanyName HAVING COUNT(Products.ProductID) > 5"
+		},
+		{
+			"number": 5,
+			"text": "List the CategoryName and the average unit price of products in each category.",
+			"solution_query": "SELECT Categories.CategoryName, AVG(Products.UnitPrice) AS AvgPrice FROM Categories JOIN Products ON Categories.CategoryID = Products.CategoryID GROUP BY Categories.CategoryName"
+		},
+		{
+			"number": 6,
+			"text": "List the EmployeeID, FirstName, and LastName of employees who have handled more than 20 orders.",
+			"solution_query": "SELECT Employees.EmployeeID, Employees.FirstName, Employees.LastName, COUNT(Orders.OrderID) AS OrderCount FROM Employees JOIN Orders ON Employees.EmployeeID = Orders.EmployeeID GROUP BY Employees.EmployeeID, Employees.FirstName, Employees.LastName HAVING COUNT(Orders.OrderID) > 20"
+		},
+		{
+			"number": 7,
+			"text": "List the CustomerID, CompanyName, and the total number of orders for each customer, only showing customers who have placed more than 10 orders.",
+			"solution_query": "SELECT Customers.CustomerID, Customers.CompanyName, COUNT(Orders.OrderID) AS TotalOrders FROM Customers JOIN Orders ON Customers.CustomerID = Orders.CustomerID GROUP BY Customers.CustomerID, Customers.CompanyName HAVING COUNT(Orders.OrderID) > 10"
+		},
+		{
+			"number": 8,
+			"text": "List the OrderID, OrderDate, and the total number of different products in each order.",
+			"solution_query": "SELECT Orders.OrderID, Orders.OrderDate, COUNT(OrderDetails.ProductID) AS ProductCount FROM Orders JOIN OrderDetails ON Orders.OrderID = OrderDetails.OrderID GROUP BY Orders.OrderID, Orders.OrderDate"
+		},
+		{
+			"number": 9,
+			"text": "List the CategoryName and the total number of products in each category, only showing categories with more than 5 products.",
+			"solution_query": "SELECT Categories.CategoryName, COUNT(Products.ProductID) AS ProductCount FROM Categories JOIN Products ON Categories.CategoryID = Products.CategoryID GROUP BY Categories.CategoryName HAVING COUNT(Products.ProductID) > 5"
+		},
+		{
+			"number": 10,
+			"text": "List the SupplierID, CompanyName, and the total value of products supplied by each supplier (unit price * units in stock).",
+			"solution_query": "SELECT Suppliers.SupplierID, Suppliers.CompanyName, SUM(Products.UnitPrice * Products.UnitsInStock) AS TotalValue FROM Suppliers JOIN Products ON Suppliers.SupplierID = Products.SupplierID GROUP BY Suppliers.SupplierID, Suppliers.CompanyName"
+		},
+		{
+			"number": 11,
+			"text": "List the OrderID and total quantity of products ordered in each order, showing only orders with more than 10 total items.",
+			"solution_query": "SELECT OrderDetails.OrderID, SUM(OrderDetails.Quantity) AS TotalQuantity FROM OrderDetails GROUP BY OrderDetails.OrderID HAVING SUM(OrderDetails.Quantity) > 10"
+		},
+		{
+			"number": 12,
+			"text": "List the OrderID, CustomerID, and the total price of each order (UnitPrice * Quantity), only showing orders with a total price above $500.",
+			"solution_query": "SELECT Orders.OrderID, Orders.CustomerID, SUM(OrderDetails.UnitPrice * OrderDetails.Quantity) AS TotalPrice FROM Orders JOIN OrderDetails ON Orders.OrderID = OrderDetails.OrderID GROUP BY Orders.OrderID, Orders.CustomerID HAVING SUM(OrderDetails.UnitPrice * OrderDetails.Quantity) > 500"
+		},
+		{
+			"number": 13,
+			"text": "List the EmployeeID and the total sales made by each employee, sorted in descending order of total sales.",
+			"solution_query": "SELECT Employees.EmployeeID, SUM(OrderDetails.UnitPrice * OrderDetails.Quantity) AS TotalSales FROM Employees JOIN Orders ON Employees.EmployeeID = Orders.EmployeeID JOIN OrderDetails ON Orders.OrderID = OrderDetails.OrderID GROUP BY Employees.EmployeeID ORDER BY TotalSales DESC"
+		}
+	]
+}

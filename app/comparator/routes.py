@@ -1,41 +1,43 @@
-from flask import render_template, request, jsonify, current_app
+from flask import render_template, request, jsonify, current_app, session, g
 from flask_login import login_required
 from werkzeug.utils import secure_filename
 import os
 import json
 from app.comparator import bp
 from app.comparator.services import SQLComparator
+#from flask import current_app
+
 
 @bp.route('/')
 @login_required
 def index():
     return render_template('comparator/index.html')
 
-@bp.route('/get_modules', methods=['GET', 'POST'])
+@bp.route('/get_modules', methods=['GET'])
 @login_required
 def get_modules():
-    #current_app.logger.info("get_modules route called")
     try:
-        # Assuming your reference files are stored in a specific directory
+        # Get the selected database from query parameter or session
+        selected_db = request.args.get('database') or session.get('current_database', 'ClassicModels')
         reference_dir = current_app.config['REFERENCE_FILES_DIR']
         modules = []
         
         # List all JSON files in the reference directory
         for filename in os.listdir(reference_dir):
             if filename.endswith('.json'):
-                # Read the JSON file to get its title (if available)
                 file_path = os.path.join(reference_dir, filename)
                 try:
                     with open(file_path, 'r') as f:
                         data = json.load(f)
-                        title = data.get('title', filename)  # fallback to filename if no title
-                except:
-                    title = filename
-                
-                modules.append({
-                    'filename': filename,
-                    'title': title
-                })
+                        # Only include files that match the selected database
+                        if data.get('database', 'ClassicModels') == selected_db:
+                            modules.append({
+                                'filename': filename,
+                                'title': data.get('title', filename)
+                            })
+                except Exception as e:
+                    current_app.logger.error(f"Error reading file {filename}: {str(e)}")
+                    continue
         
         return jsonify({'modules': modules})
     except Exception as e:
@@ -124,31 +126,26 @@ def compare_single_query():
 @bp.route('/get_question_modules')
 @login_required
 def get_question_modules():
-    questions_dir = current_app.config['REFERENCE_FILES_DIR']
     try:
-        modules = [f for f in os.listdir(questions_dir) 
-                  if f.endswith('.json')]
-        
-        # Load module names for dropdown
+        selected_db = request.args.get('database') or session.get('current_database', 'ClassicModels')
+        questions_dir = current_app.config['REFERENCE_FILES_DIR']
         module_list = []
-        for module in modules:
-            try:
-                with open(os.path.join(questions_dir, module), 'r') as f:
-                    data = json.load(f)
-                    # If file has a title, use it, otherwise use filename
-                    title = data.get('title', module)
-                    module_list.append({
-                        'filename': module,
-                        'title': title
-                    })
-            except:
-                current_app.logger.error(f"Error reading module {module}: {e}")
-                # If there's an error reading the file, just use the filename
-                module_list.append({
-                    'filename': module,
-                    'title': module
-                })
-                
+        
+        for filename in os.listdir(questions_dir):
+            if filename.endswith('.json'):
+                try:
+                    with open(os.path.join(questions_dir, filename), 'r') as f:
+                        data = json.load(f)
+                        # Only include files that match the selected database
+                        if data.get('database', 'ClassicModels') == selected_db:
+                            module_list.append({
+                                'filename': filename,
+                                'title': data.get('title', filename)
+                            })
+                except Exception as e:
+                    current_app.logger.error(f"Error reading module {filename}: {e}")
+                    continue
+                    
         return jsonify({'modules': module_list})
     except Exception as e:
         current_app.logger.error(f"Error listing modules: {e}")
@@ -176,35 +173,39 @@ def get_module_questions(module_name):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@bp.route('/switch_database/<database>', methods=['POST'])
+@login_required
+def switch_database(database):
+    try:
+        if database not in current_app.config['AVAILABLE_DATABASES']:
+            return jsonify({
+                'success': False,
+                'error': f'Invalid database selection: {database}'
+            }), 400
 
-
-# @comparator_bp.route('/compare_files', methods=['POST'])
-# @login_required
-# def compare_files():
-#     if 'userFile' not in request.files:
-#         return jsonify({'error': 'User file is required'}), 400
-    
-#     user_file = request.files['userFile']
-#     reference_filename = request.form.get('referenceFile')
-    
-#     if user_file.filename == '' or not reference_filename:
-#         return jsonify({'error': 'Both files must be selected'}), 400
-    
-#     try:
-#         user_queries = json.load(user_file)
+        # Get the actual database name from the mapping
+        db_name = current_app.config['AVAILABLE_DATABASES'][database]
         
-#         reference_path = os.path.join(current_app.config['UPLOAD_FOLDER'], reference_filename)
-#         with open(reference_path, 'r') as f:
-#             reference_queries = json.load(f)
+        # Update the application configuration
+        current_app.config['DB_CONFIG'] = current_app.config['DB_CONFIG'].copy()
+        current_app.config['DB_CONFIG']['database'] = db_name
         
-#         if not SQLComparator.validate_queries_json(user_queries) or \
-#            not SQLComparator.validate_queries_json(reference_queries):
-#             return jsonify({'error': 'Invalid file format'}), 400
+        # Store in session and force it to persist
+        session['current_database'] = database
+        session.modified = True  # Force the session to be saved
         
-#         comparison_results = SQLComparator.process_comparison(user_queries, reference_queries)
-#         return jsonify({'comparisons': comparison_results})
+        # Force reconnection to the new database
+        if hasattr(g, 'db'):
+            delattr(g, 'db')
         
-#     except json.JSONDecodeError:
-#         return jsonify({'error': 'Invalid JSON format'}), 400
-#     except Exception as e:
-#         return jsonify({'error': str(e)}), 500
+        return jsonify({
+            'success': True, 
+            'database': database,
+            'message': f'Successfully switched to {database} database'
+        })
+    except Exception as e:
+        current_app.logger.error(f"Error switching database: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': f'Error switching database: {str(e)}'
+        }), 500

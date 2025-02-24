@@ -1,5 +1,6 @@
 {
 	"title": "Select, From and Where",
+	"database": "ClassicModels",
 	"questions": [
 		{
 			"number": 1,
@@ -109,7 +110,7 @@
 		{
 			"number": 22,
 			"text": "List the productCode, productName, and quantityInStock for products with either no units in stock or no units on order.",
-			"solution_query": "SELECT productCode, productName, quantityInStock FROM Products WHERE quantityInStock = 0 OR quantityOnOrder = 0"
+			"solution_query": "SELECT productCode, productName, quantityInStock FROM Products WHERE quantityInStock = 0 OR quantityOrdered = 0"
 		},
 		{
 			"number": 23,

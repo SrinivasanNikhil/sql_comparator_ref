@@ -168,6 +168,12 @@
                     Single Query Comparison
                 </button>
             </li>
+            <li class="nav-item" role="presentation">
+                <select class="form-select" id="databaseSelector">
+                    <option value="ClassicModels">ClassicModels</option>
+                    <option value="Northwind">Northwind</option>
+                </select>
+            </li>
             <li class="nav-item ms-auto" role="presentation">
                 <button class="nav-link" data-bs-toggle="modal" data-bs-target="#schemaModal" type="button">
                     View Database Schema
@@ -341,6 +347,102 @@
     <script defer src="https://rispose.com/cdn/script.js"></script>
 
     <script>
+        // Function to load modules based on selected database
+        async function loadModules(database) {
+            try {
+                // Clear existing options in both dropdowns
+                const referenceSelect = document.getElementById('referenceFile');
+                const questionModuleSelect = document.getElementById('questionModule');
+                referenceSelect.innerHTML = '<option value="">Select a reference file...</option>';
+                questionModuleSelect.innerHTML = '<option value="">Select a module...</option>';
+
+                // Load modules for file comparison
+                const moduleResponse = await fetch(`/get_modules?database=${database}`);
+                const moduleData = await moduleResponse.json();
+
+                if (moduleData.modules) {
+                    moduleData.modules.forEach(module => {
+                        // Add to file comparison dropdown
+                        const option1 = document.createElement('option');
+                        option1.value = module.filename;
+                        option1.textContent = module.title;
+                        referenceSelect.appendChild(option1);
+
+                        // Add to module selection dropdown
+                        const option2 = document.createElement('option');
+                        option2.value = module.filename;
+                        option2.textContent = module.title;
+                        questionModuleSelect.appendChild(option2);
+                    });
+                }
+
+                // Clear question selection and text
+                document.getElementById('questionNumber').innerHTML = '<option value="">First select a module...</option>';
+                document.getElementById('questionText').textContent = 'Select a question to see its description...';
+            } catch (error) {
+                console.error('Error loading modules:', error);
+            }
+        }
+
+        // Update database switching handler
+        document.getElementById('databaseSelector').addEventListener('change', async function (e) {
+            const selectedDatabase = e.target.value;
+            try {
+                const response = await fetch(`/switch_database/${selectedDatabase}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    // Update schema image and modal title
+                    const schemaImg = document.querySelector('#schemaModal img');
+                    const schemaLabel = document.querySelector('#schemaModalLabel');
+
+                    if (selectedDatabase === 'Northwind') {
+                        schemaImg.src = 'https://docs.yugabyte.com/images/sample-data/northwind/northwind-er-diagram.png';
+                        schemaLabel.textContent = 'Northwind Database Schema';
+                    } else {
+                        schemaImg.src = 'https://www.richardtwatson.com/open/images/general/ClassicModels.png';
+                        schemaLabel.textContent = 'ClassicModels Database Schema';
+                    }
+
+                    // Store selection in localStorage
+                    localStorage.setItem('selectedDatabase', selectedDatabase);
+
+                    // Load modules for the selected database
+                    await loadModules(selectedDatabase);
+
+                    // Clear any existing results
+                    const resultsDiv = document.getElementById('results');
+                    const resultsContent = document.getElementById('resultsContent');
+                    resultsContent.innerHTML = '';
+                    resultsDiv.style.display = 'none';
+
+                    // Show success message
+                    alert(`Successfully switched to ${selectedDatabase} database`);
+                } else {
+                    alert(data.error || 'Failed to switch database');
+                    // Reset the selector to the previous value
+                    e.target.value = e.target.dataset.previousValue;
+                }
+            } catch (error) {
+                console.error('Error switching database:', error);
+                alert('Error switching database. Please try again.');
+                // Reset the selector to the previous value
+                e.target.value = e.target.dataset.previousValue;
+            }
+        });
+
+        // Load initial modules on page load
+        document.addEventListener('DOMContentLoaded', function () {
+            const selectedDatabase = localStorage.getItem('selectedDatabase') || 'ClassicModels';
+            document.getElementById('databaseSelector').value = selectedDatabase;
+            loadModules(selectedDatabase);
+        });
+
         // Populate reference file dropdowns
         fetch('/get_modules')
             .then(response => response.json())
@@ -816,7 +918,185 @@
             })
         });
 
+        // Update database switching functionality
+        // document.getElementById('databaseSelector').addEventListener('change', async function (e) {
+        //     const selectedDatabase = e.target.value;
+        //     try {
+        //         const response = await fetch(`/switch_database/${selectedDatabase}`, {
+        //             method: 'POST',
+        //             headers: {
+        //                 'Content-Type': 'application/json',
+        //                 'X-Requested-With': 'XMLHttpRequest'
+        //             }
+        //         });
 
+        //         const data = await response.json();
+        //         if (data.success) {
+        //             // Update schema image based on selected database
+        //             const schemaImg = document.querySelector('#schemaModal img');
+        //             const schemaLabel = document.querySelector('#schemaModalLabel');
+
+        //             if (selectedDatabase === 'Northwind') {
+        //                 schemaImg.src = 'https://docs.yugabyte.com/images/sample-data/northwind/northwind-er-diagram.png';
+        //                 schemaLabel.textContent = 'Northwind Database Schema';
+        //             } else {
+        //                 schemaImg.src = 'https://www.richardtwatson.com/open/images/general/ClassicModels.png';
+        //                 schemaLabel.textContent = 'ClassicModels Database Schema';
+        //             }
+
+        //             // Show success message but don't reload the page
+        //             alert(`Successfully switched to ${selectedDatabase} database`);
+
+        //             // Load modules for the selected database
+        //             loadModules(selectedDatabase);
+
+        //             // Clear any existing results
+        //             const resultsDiv = document.getElementById('results');
+        //             const resultsContent = document.getElementById('resultsContent');
+        //             resultsContent.innerHTML = '';
+        //             resultsDiv.style.display = 'none';
+        //         } else {
+        //             alert(data.error || 'Failed to switch database');
+        //             // Reset the selector to the previous value
+        //             e.target.value = e.target.dataset.previousValue;
+        //         }
+        //     } catch (error) {
+        //         console.error('Error switching database:', error);
+        //         alert('Error switching database. Please try again.');
+        //         // Reset the selector to the previous value
+        //         e.target.value = e.target.dataset.previousValue;
+        //     }
+        // });
+
+        // Store the previous value when the select is clicked
+        document.getElementById('databaseSelector').addEventListener('mousedown', function (e) {
+            e.target.dataset.previousValue = e.target.value;
+        });
+
+        // Add database switching functionality
+        document.getElementById('databaseSelector').addEventListener('change', async function (e) {
+            try {
+                const response = await fetch(`/switch_database/${e.target.value}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    // Update schema image based on selected database
+                    const schemaImg = document.querySelector('#schemaModal img');
+                    if (data.database === 'Northwind') {
+                        schemaImg.src = 'https://www.databasestar.com/wp-content/uploads/2019/04/northwind_erd.png';
+                        document.querySelector('#schemaModalLabel').textContent = 'Northwind Database Schema';
+                    } else {
+                        schemaImg.src = 'https://www.richardtwatson.com/open/images/general/ClassicModels.png';
+                        document.querySelector('#schemaModalLabel').textContent = 'ClassicModels Database Schema';
+                    }
+
+                    // Store the selected database in local storage
+                    localStorage.setItem('selectedDatabase', data.database);
+
+                    // Refresh the page to reload with new database
+                    window.location.reload();
+                } else {
+                    alert('Failed to switch database');
+                }
+            } catch (error) {
+                console.error('Error switching database:', error);
+                alert('Error switching database');
+            }
+        });
+
+        // Retrieve the selected database from local storage on page load
+        document.addEventListener('DOMContentLoaded', function () {
+            const selectedDatabase = localStorage.getItem('selectedDatabase');
+            if (selectedDatabase) {
+                document.getElementById('databaseSelector').value = selectedDatabase;
+
+                // Update schema image based on stored database
+                const schemaImg = document.querySelector('#schemaModal img');
+                if (selectedDatabase === 'Northwind') {
+                    schemaImg.src = 'https://www.databasestar.com/wp-content/uploads/2019/04/northwind_erd.png';
+                    document.querySelector('#schemaModalLabel').textContent = 'Northwind Database Schema';
+                } else {
+                    schemaImg.src = 'https://www.richardtwatson.com/open/images/general/ClassicModels.png';
+                    document.querySelector('#schemaModalLabel').textContent = 'ClassicModels Database Schema';
+                }
+            }
+        });
+
+        // Replace or add this function to load modules based on database selection
+        async function loadModules(selectedDatabase) {
+            try {
+                const response = await fetch(`/get_modules?database=${selectedDatabase}`);
+                const data = await response.json();
+
+                // Update file comparison dropdown
+                const referenceSelect = document.getElementById('referenceFile');
+                referenceSelect.innerHTML = '<option value="">Select a reference file...</option>';
+
+                // Update module selection dropdown
+                const questionModuleSelect = document.getElementById('questionModule');
+                questionModuleSelect.innerHTML = '<option value="">Select a module...</option>';
+
+                if (data.modules) {
+                    data.modules.forEach(module => {
+                        // Add to file comparison dropdown
+                        const option1 = document.createElement('option');
+                        option1.value = module.filename;
+                        option1.textContent = module.title;
+                        referenceSelect.appendChild(option1);
+
+                        // Add to module selection dropdown
+                        const option2 = document.createElement('option');
+                        option2.value = module.filename;
+                        option2.textContent = module.title;
+                        questionModuleSelect.appendChild(option2);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading modules:', error);
+            }
+        }
+
+        // Update database switching handler to reload modules
+        document.getElementById('databaseSelector').addEventListener('change', async function (e) {
+            const selectedDatabase = e.target.value;
+            try {
+                const response = await fetch(`/switch_database/${selectedDatabase}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    // Update schema image and other UI elements as before
+                    // ...existing code...
+
+                    // Load modules for the selected database
+                    await loadModules(selectedDatabase);
+
+                    // Store the selection in localStorage
+                    localStorage.setItem('selectedDatabase', selectedDatabase);
+                } else {
+                    alert('Failed to switch database');
+                }
+            } catch (error) {
+                console.error('Error switching database:', error);
+                alert('Error switching database');
+            }
+        });
+
+        // Load initial modules on page load
+        document.addEventListener('DOMContentLoaded', function () {
+            const selectedDatabase = localStorage.getItem('selectedDatabase') || 'ClassicModels';
+            document.getElementById('databaseSelector').value = selectedDatabase;
+            loadModules(selectedDatabase);
+        });
     </script>
 
     {% endblock %}

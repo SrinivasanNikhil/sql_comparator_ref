@@ -1,5 +1,6 @@
 {
 	"title": "Join On, Group By and Having",
+	"database": "ClassicModels",
 	"questions": [
 		{
 			"number": 1,
@@ -64,7 +65,7 @@
 		{
 			"number": 13,
 			"text": "List the employeeNumber and the number of customers managed by each employee.",
-			"solution_query": "SELECT employeeNumber, COUNT(customerNumber) AS customerCount FROM Employees LEFT JOIN Customers ON Employees.employeeNumber = Customers.salesRepEmployeeNumber GROUP BY employeeNumber"
+			"solution_query": "SELECT employeeNumber, COUNT(customerNumber) AS customerCount FROM Employees JOIN Customers ON Employees.employeeNumber = Customers.salesRepEmployeeNumber GROUP BY employeeNumber"
 		},
 		{
 			"number": 14,
