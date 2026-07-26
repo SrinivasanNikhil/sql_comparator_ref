@@ -3,6 +3,7 @@ from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.security import check_password_hash, generate_password_hash
 from app.auth.models import User
 from app.auth import bp
+from app.database import db
 
 @bp.route('/login', methods=['GET', 'POST'])
 def login():
@@ -38,7 +39,7 @@ def register():
             
         password_hash = generate_password_hash(password)
         db.execute_query(
-                "INSERT INTO users (username, password_hash) VALUES (%s, %s)",
+                "INSERT INTO AreTheseAccounts.users (username, password_hash) VALUES (%s, %s)",
                 (username, password_hash)
         )
         

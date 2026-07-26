@@ -13,7 +13,7 @@ class User(UserMixin):
     def get_by_username(username):
         try:
             result = db.execute_query(
-                "SELECT * FROM users WHERE username = %s",
+                "SELECT * FROM AreTheseAccounts.users WHERE username = %s",
                 (username,)
             )
             if result:
@@ -32,7 +32,7 @@ class User(UserMixin):
     def get_by_id(user_id):
         try:
             result = db.execute_query(
-                "SELECT * FROM users WHERE id = %s",
+                "SELECT * FROM AreTheseAccounts.users WHERE id = %s",
                 (user_id,)
             )
             if result:

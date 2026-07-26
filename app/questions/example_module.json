@@ -1,0 +1,10 @@
+{
+    "title": "Example Question Module",
+    "questions": [
+        {
+            "number": 1,
+            "text": "Select all records from users table",
+            "query": "SELECT * FROM users;"
+        }
+    ]
+}

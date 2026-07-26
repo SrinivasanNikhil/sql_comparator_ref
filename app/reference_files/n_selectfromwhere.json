@@ -1,0 +1,81 @@
+{
+	"title": "Select, From and Where",
+	"database": "Northwind",
+	"questions": [
+		{
+			"number": 1,
+			"text": "List the company name, city, region, and country for customers from the USA.",
+			"solution_query": "SELECT CompanyName, City, Region, Country FROM Customers WHERE Country = 'USA'"
+		},
+		{
+			"number": 2,
+			"text": "List the ProductID, ProductName, and UnitPrice for products with a unit price greater than $50.",
+			"solution_query": "SELECT ProductID, ProductName, UnitPrice FROM Products WHERE UnitPrice > 50"
+		},
+		{
+			"number": 3,
+			"text": "List the EmployeeID, FirstName, LastName, and Title for employees who are Sales Representatives.",
+			"solution_query": "SELECT EmployeeID, FirstName, LastName, Title FROM Employees WHERE Title = 'Sales Representative'"
+		},
+		{
+			"number": 4,
+			"text": "List the ProductID, ProductName, CategoryID, and UnitPrice for products in the 'Beverages' category.",
+			"solution_query": "SELECT ProductID, ProductName, CategoryID, UnitPrice FROM Products WHERE CategoryID = (SELECT CategoryID FROM Categories WHERE CategoryName = 'Beverages')"
+		},
+		{
+			"number": 5,
+			"text": "List the CustomerID, CompanyName, and CreditLimit for customers with a credit limit above $50,000.",
+			"solution_query": "SELECT CustomerID, CompanyName, CreditLimit FROM Customers WHERE CreditLimit > 50000"
+		},
+		{
+			"number": 6,
+			"text": "List the ProductID, ProductName, and UnitsInStock for products with fewer than 100 units in stock.",
+			"solution_query": "SELECT ProductID, ProductName, UnitsInStock FROM Products WHERE UnitsInStock < 100"
+		},
+		{
+			"number": 7,
+			"text": "List the OrderID, OrderDate, and Status for all orders that are 'Pending'.",
+			"solution_query": "SELECT OrderID, OrderDate, Status FROM Orders WHERE Status = 'Pending'"
+		},
+		{
+			"number": 8,
+			"text": "List the CompanyName, Country, and City for customers from Germany or France.",
+			"solution_query": "SELECT CompanyName, Country, City FROM Customers WHERE Country IN ('Germany', 'France')"
+		},
+		{
+			"number": 9,
+			"text": "List the ProductID and ProductName for products containing 'Chocolate' in their name.",
+			"solution_query": "SELECT ProductID, ProductName FROM Products WHERE ProductName LIKE '%Chocolate%'"
+		},
+		{
+			"number": 10,
+			"text": "List the CompanyName, ContactName, and ContactTitle for customers whose contact first name starts with 'A'.",
+			"solution_query": "SELECT CompanyName, ContactName, ContactTitle FROM Customers WHERE ContactName LIKE 'A%'"
+		},
+		{
+			"number": 11,
+			"text": "List the OrderID, OrderDate, and CustomerID for orders placed between January 1, 1997, and June 30, 1997.",
+			"solution_query": "SELECT OrderID, OrderDate, CustomerID FROM Orders WHERE OrderDate BETWEEN '1997-01-01' AND '1997-06-30'"
+		},
+		{
+			"number": 12,
+			"text": "List the EmployeeID, FirstName, and LastName for employees hired before January 1, 1995.",
+			"solution_query": "SELECT EmployeeID, FirstName, LastName FROM Employees WHERE HireDate < '1995-01-01'"
+		},
+		{
+			"number": 13,
+			"text": "List the OrderID, CustomerID, and Freight cost for orders with a freight cost greater than $100.",
+			"solution_query": "SELECT OrderID, CustomerID, Freight FROM Orders WHERE Freight > 100"
+		},
+		{
+			"number": 14,
+			"text": "List the SupplierID, CompanyName, and ContactName for suppliers located in the UK.",
+			"solution_query": "SELECT SupplierID, CompanyName, ContactName FROM Suppliers WHERE Country = 'UK'"
+		},
+		{
+			"number": 15,
+			"text": "List the ProductID, ProductName, and Discontinued status for products that are currently discontinued.",
+			"solution_query": "SELECT ProductID, ProductName, Discontinued FROM Products WHERE Discontinued = 1"
+		}
+	]
+}

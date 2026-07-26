@@ -168,6 +168,17 @@
                     Single Query Comparison
                 </button>
             </li>
+            <li class="nav-item" role="presentation">
+                <select class="form-select" id="databaseSelector">
+                    <option value="ClassicModels">ClassicModels</option>
+                    <option value="Northwind">Northwind</option>
+                </select>
+            </li>
+            <li class="nav-item ms-auto" role="presentation">
+                <button class="nav-link" data-bs-toggle="modal" data-bs-target="#schemaModal" type="button">
+                    View Database Schema
+                </button>
+            </li>
         </ul>
 
         <div class="tab-content" id="compareContent">
@@ -175,7 +186,23 @@
             <div class="tab-pane fade show active" id="fileCompare" role="tabpanel">
                 <!-- Your existing file comparison form -->
                 <div class="card">
-                    <!-- ... existing file comparison form ... -->
+                    <div class="card-body">
+                        <form id="fileCompareForm" enctype="multipart/form-data">
+                            <div class="mb-3">
+                                <label for="referenceFile" class="form-label">Select Reference File</label>
+                                <select class="form-select" id="referenceFile" name="reference_file" required>
+                                    <option value="">Select a reference file...</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="userFile" class="form-label">Upload Your Solution File</label>
+                                <input type="file" class="form-control" id="userFile" name="user_file" accept=".json"
+                                    required>
+                                <div class="form-text">Upload a JSON file containing your SQL queries</div>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Compare Files</button>
+                        </form>
+                    </div>
                 </div>
             </div>
 
@@ -286,6 +313,24 @@
                 </div>
             </template>
 
+            <div class="modal fade" id="schemaModal" tabindex="-1" aria-labelledby="schemaModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="schemaModalLabel">ClassicModels Database Schema</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body text-center">
+                            <img src="https://www.richardtwatson.com/open/images/general/ClassicModels.png"
+                                alt="ClassicModels Database Schema" class="img-fluid" style="max-width: 100%;">
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             <div id="results" class="comparison-results" style="display: none;">
                 <h3>Comparison Results</h3>
@@ -298,8 +343,227 @@
 
     {% block extra_js %}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script> window.risposeWidgetId = "q91pmakq9c9w" </script>
+    <script defer src="https://rispose.com/cdn/script.js"></script>
 
     <script>
+        // Function to load modules based on selected database
+        async function loadModules(database) {
+            try {
+                // Clear existing options in both dropdowns
+                const referenceSelect = document.getElementById('referenceFile');
+                const questionModuleSelect = document.getElementById('questionModule');
+                referenceSelect.innerHTML = '<option value="">Select a reference file...</option>';
+                questionModuleSelect.innerHTML = '<option value="">Select a module...</option>';
+
+                // Load modules for file comparison
+                const moduleResponse = await fetch(`/get_modules?database=${database}`);
+                const moduleData = await moduleResponse.json();
+
+                if (moduleData.modules) {
+                    moduleData.modules.forEach(module => {
+                        // Add to file comparison dropdown
+                        const option1 = document.createElement('option');
+                        option1.value = module.filename;
+                        option1.textContent = module.title;
+                        referenceSelect.appendChild(option1);
+
+                        // Add to module selection dropdown
+                        const option2 = document.createElement('option');
+                        option2.value = module.filename;
+                        option2.textContent = module.title;
+                        questionModuleSelect.appendChild(option2);
+                    });
+                }
+
+                // Clear question selection and text
+                document.getElementById('questionNumber').innerHTML = '<option value="">First select a module...</option>';
+                document.getElementById('questionText').textContent = 'Select a question to see its description...';
+            } catch (error) {
+                console.error('Error loading modules:', error);
+            }
+        }
+
+        // Update database switching handler
+        document.getElementById('databaseSelector').addEventListener('change', async function (e) {
+            const selectedDatabase = e.target.value;
+            try {
+                const response = await fetch(`/switch_database/${selectedDatabase}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    // Update schema image and modal title
+                    const schemaImg = document.querySelector('#schemaModal img');
+                    const schemaLabel = document.querySelector('#schemaModalLabel');
+
+                    if (selectedDatabase === 'Northwind') {
+                        schemaImg.src = 'https://docs.yugabyte.com/images/sample-data/northwind/northwind-er-diagram.png';
+                        schemaLabel.textContent = 'Northwind Database Schema';
+                    } else {
+                        schemaImg.src = 'https://www.richardtwatson.com/open/images/general/ClassicModels.png';
+                        schemaLabel.textContent = 'ClassicModels Database Schema';
+                    }
+
+                    // Store selection in localStorage
+                    localStorage.setItem('selectedDatabase', selectedDatabase);
+
+                    // Load modules for the selected database
+                    await loadModules(selectedDatabase);
+
+                    // Clear any existing results
+                    const resultsDiv = document.getElementById('results');
+                    const resultsContent = document.getElementById('resultsContent');
+                    resultsContent.innerHTML = '';
+                    resultsDiv.style.display = 'none';
+
+                    // Show success message
+                    alert(`Successfully switched to ${selectedDatabase} database`);
+                } else {
+                    alert(data.error || 'Failed to switch database');
+                    // Reset the selector to the previous value
+                    e.target.value = e.target.dataset.previousValue;
+                }
+            } catch (error) {
+                console.error('Error switching database:', error);
+                alert('Error switching database. Please try again.');
+                // Reset the selector to the previous value
+                e.target.value = e.target.dataset.previousValue;
+            }
+        });
+
+        // Load initial modules on page load
+        document.addEventListener('DOMContentLoaded', function () {
+            const selectedDatabase = localStorage.getItem('selectedDatabase') || 'ClassicModels';
+            document.getElementById('databaseSelector').value = selectedDatabase;
+            loadModules(selectedDatabase);
+        });
+
+        // Populate reference file dropdowns
+        fetch('/get_modules')
+            .then(response => response.json())
+            .then(data => {
+                //console.log(data);
+                const referenceSelect = document.getElementById('referenceFile');
+                const questionModuleSelect = document.getElementById('questionModule');
+
+                if (data.modules) {
+                    data.modules.forEach(module => {
+                        // For file comparison dropdown
+                        const option1 = document.createElement('option');
+                        option1.value = module.filename;
+                        option1.textContent = module.title;
+                        referenceSelect.appendChild(option1);
+
+                        // For single query comparison dropdown
+                        const option2 = document.createElement('option');
+                        option2.value = module.filename;
+                        option2.textContent = module.title;
+                        questionModuleSelect.appendChild(option2);
+                    });
+                }
+            })
+            .catch(error => console.error('Error loading reference files:', error));
+
+
+
+        // Handle file comparison form submission
+        document.getElementById('fileCompareForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+
+            fetch('/compare_files', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    const resultsDiv = document.getElementById('results');
+                    const resultsContent = document.getElementById('resultsContent');
+                    resultsContent.innerHTML = ''; // Clear previous results
+
+                    if (data.error) {
+                        resultsContent.innerHTML = `<div class="alert alert-danger">${data.error}</div>`;
+                        resultsDiv.style.display = 'block';
+                        return;
+                    }
+
+                    // Add overall score
+                    const scoreCard = document.createElement('div');
+                    scoreCard.className = 'card mb-4';
+                    scoreCard.innerHTML = `
+                    <div class="card-body">
+                        <h4>Overall Score: ${data.percentage.toFixed(1)}%</h4>
+                        <p>Total Score: ${data.total_score} / ${data.max_possible_score}</p>
+                    </div>
+                `;
+                    resultsContent.appendChild(scoreCard);
+
+                    // Add individual question results
+                    const template = document.getElementById('queryComparisonTemplate');
+                    data.results.forEach(result => {
+                        const resultElement = template.content.cloneNode(true);
+                        //console.log(result.comparison);
+                        // Set question number
+                        resultElement.querySelector('.question-number').textContent = result.question_number;
+
+                        if (result.status === 'missing') {
+                            const card = resultElement.querySelector('.card-body');
+                            card.innerHTML = `
+                            <div class="alert alert-warning">
+                                Question not found in uploaded file.
+                                <br>Score: ${result.score}/${result.max_score}
+                            </div>
+                        `;
+                        } else {
+                            const comparison = result.comparison;
+
+                            // Set query text
+                            resultElement.querySelector('.user-query pre').textContent =
+                                result.user_query || 'No query provided';
+                            resultElement.querySelector('.reference-query pre').textContent =
+                                comparison.reference_query || 'No reference query available';
+
+                            // Set analysis results
+                            resultElement.querySelector('.missing-terms span').textContent =
+                                comparison.query_analysis.missing_terms.join(', ') || 'None';
+                            resultElement.querySelector('.additional-terms span').textContent =
+                                comparison.query_analysis.additional_terms.join(', ') || 'None';
+                            resultElement.querySelector('.query-match-status span').textContent =
+                                comparison.query_analysis.exact_match ? 'Exact Match' : 'Partial Match';
+
+                            //console.log(comparison.result_comparison.columns.match);
+                            // Set comparison results
+                            if (comparison.result_comparison) {
+                                const columnsMatch = comparison.result_comparison.columns.match;
+                                const rowsMatch = comparison.result_comparison.record_counts.user === comparison.result_comparison.record_counts.reference;
+
+                                resultElement.querySelector('.columns-comparison').textContent =
+                                    columnsMatch ? '✓ Columns match' : '✗ Columns do not match';
+                                resultElement.querySelector('.records-comparison').textContent =
+                                    rowsMatch ? '✓ Record counts match' : '✗ Record counts do not match';
+                                resultElement.querySelector('.results-match-status').textContent =
+                                    comparison.result_comparison.exact_match ? 'Results match exactly' : 'Results differ';
+                            }
+                        }
+
+                        resultsContent.appendChild(resultElement);
+                    });
+
+                    resultsDiv.style.display = 'block';
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    const resultsContent = document.getElementById('resultsContent');
+                    resultsContent.innerHTML = `<div class="alert alert-danger">Error processing comparison: ${error}</div>`;
+                    document.getElementById('results').style.display = 'block';
+                });
+        });
 
         window.addEventListener('load', async () => {
             try {
@@ -308,6 +572,7 @@
 
                 const moduleSelect = document.getElementById('questionModule');
                 data.modules.forEach(module => {
+                    //console.log(module);
                     const option = document.createElement('option');
                     option.value = module;
                     option.textContent = module.replace('.json', '');
@@ -396,28 +661,28 @@
             }
         });
 
-        document.getElementById('compareForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
+        // document.getElementById('compareForm').addEventListener('submit', async (e) => {
+        //     e.preventDefault();
 
-            const formData = new FormData(e.target);
-            try {
-                const response = await fetch('/compare_files', {
-                    method: 'POST',
-                    body: formData
-                });
+        //     const formData = new FormData(e.target);
+        //     try {
+        //         const response = await fetch('/compare_files', {
+        //             method: 'POST',
+        //             body: formData
+        //         });
 
-                const data = await response.json();
+        //         const data = await response.json();
 
-                if (data.error) {
-                    alert(data.error);
-                    return;
-                }
+        //         if (data.error) {
+        //             alert(data.error);
+        //             return;
+        //         }
 
-                displayResults(data.comparisons);
-            } catch (error) {
-                alert('Error comparing files: ' + error);
-            }
-        });
+        //         displayResults(data.comparisons);
+        //     } catch (error) {
+        //         alert('Error comparing files: ' + error);
+        //     }
+        // });
 
         function displayResults(comparisons) {
             const resultsDiv = document.getElementById('results');
@@ -453,32 +718,32 @@
             resultsDiv.style.display = 'block';
         }
 
-        // Fetch reference files on page load
-        window.addEventListener('load', async () => {
-            try {
-                const response = await fetch('/get_reference_files');
-                const data = await response.json();
+        // // Fetch reference files on page load
+        // window.addEventListener('load', async () => {
+        //     try {
+        //         const response = await fetch('/get_reference_files');
+        //         const data = await response.json();
 
-                const fileSelect = document.getElementById('referenceFile');
-                const querySelect = document.getElementById('referenceFileQuery');
+        //         const fileSelect = document.getElementById('referenceFile');
+        //         const querySelect = document.getElementById('referenceFileQuery');
 
-                data.files.forEach(file => {
-                    // Populate file comparison select
-                    const option1 = document.createElement('option');
-                    option1.value = file;
-                    option1.textContent = file;
-                    fileSelect.appendChild(option1);
+        //         data.files.forEach(file => {
+        //             // Populate file comparison select
+        //             const option1 = document.createElement('option');
+        //             option1.value = file;
+        //             option1.textContent = file;
+        //             fileSelect.appendChild(option1);
 
-                    // Populate query comparison select
-                    const option2 = document.createElement('option');
-                    option2.value = file;
-                    option2.textContent = file;
-                    querySelect.appendChild(option2);
-                });
-            } catch (error) {
-                console.error('Error loading reference files:', error);
-            }
-        });
+        //             // Populate query comparison select
+        //             const option2 = document.createElement('option');
+        //             option2.value = file;
+        //             option2.textContent = file;
+        //             querySelect.appendChild(option2);
+        //         });
+        //     } catch (error) {
+        //         console.error('Error loading reference files:', error);
+        //     }
+        // });
 
 
         function displayResults(comparisons) {
@@ -643,10 +908,195 @@
                 triggerEl.addEventListener('click', function (event) {
                     event.preventDefault()
                     tabTrigger.show()
+
+                    // Clear the results when switching tabs
+                    const resultsDiv = document.getElementById('results');
+                    const resultsContent = document.getElementById('resultsContent');
+                    resultsContent.innerHTML = '';
+                    resultsDiv.style.display = 'none';
                 })
             })
         });
 
+        // Update database switching functionality
+        // document.getElementById('databaseSelector').addEventListener('change', async function (e) {
+        //     const selectedDatabase = e.target.value;
+        //     try {
+        //         const response = await fetch(`/switch_database/${selectedDatabase}`, {
+        //             method: 'POST',
+        //             headers: {
+        //                 'Content-Type': 'application/json',
+        //                 'X-Requested-With': 'XMLHttpRequest'
+        //             }
+        //         });
 
+        //         const data = await response.json();
+        //         if (data.success) {
+        //             // Update schema image based on selected database
+        //             const schemaImg = document.querySelector('#schemaModal img');
+        //             const schemaLabel = document.querySelector('#schemaModalLabel');
+
+        //             if (selectedDatabase === 'Northwind') {
+        //                 schemaImg.src = 'https://docs.yugabyte.com/images/sample-data/northwind/northwind-er-diagram.png';
+        //                 schemaLabel.textContent = 'Northwind Database Schema';
+        //             } else {
+        //                 schemaImg.src = 'https://www.richardtwatson.com/open/images/general/ClassicModels.png';
+        //                 schemaLabel.textContent = 'ClassicModels Database Schema';
+        //             }
+
+        //             // Show success message but don't reload the page
+        //             alert(`Successfully switched to ${selectedDatabase} database`);
+
+        //             // Load modules for the selected database
+        //             loadModules(selectedDatabase);
+
+        //             // Clear any existing results
+        //             const resultsDiv = document.getElementById('results');
+        //             const resultsContent = document.getElementById('resultsContent');
+        //             resultsContent.innerHTML = '';
+        //             resultsDiv.style.display = 'none';
+        //         } else {
+        //             alert(data.error || 'Failed to switch database');
+        //             // Reset the selector to the previous value
+        //             e.target.value = e.target.dataset.previousValue;
+        //         }
+        //     } catch (error) {
+        //         console.error('Error switching database:', error);
+        //         alert('Error switching database. Please try again.');
+        //         // Reset the selector to the previous value
+        //         e.target.value = e.target.dataset.previousValue;
+        //     }
+        // });
+
+        // Store the previous value when the select is clicked
+        document.getElementById('databaseSelector').addEventListener('mousedown', function (e) {
+            e.target.dataset.previousValue = e.target.value;
+        });
+
+        // Add database switching functionality
+        document.getElementById('databaseSelector').addEventListener('change', async function (e) {
+            try {
+                const response = await fetch(`/switch_database/${e.target.value}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    // Update schema image based on selected database
+                    const schemaImg = document.querySelector('#schemaModal img');
+                    if (data.database === 'Northwind') {
+                        schemaImg.src = 'https://www.databasestar.com/wp-content/uploads/2019/04/northwind_erd.png';
+                        document.querySelector('#schemaModalLabel').textContent = 'Northwind Database Schema';
+                    } else {
+                        schemaImg.src = 'https://www.richardtwatson.com/open/images/general/ClassicModels.png';
+                        document.querySelector('#schemaModalLabel').textContent = 'ClassicModels Database Schema';
+                    }
+
+                    // Store the selected database in local storage
+                    localStorage.setItem('selectedDatabase', data.database);
+
+                    // Refresh the page to reload with new database
+                    window.location.reload();
+                } else {
+                    alert('Failed to switch database');
+                }
+            } catch (error) {
+                console.error('Error switching database:', error);
+                alert('Error switching database');
+            }
+        });
+
+        // Retrieve the selected database from local storage on page load
+        document.addEventListener('DOMContentLoaded', function () {
+            const selectedDatabase = localStorage.getItem('selectedDatabase');
+            if (selectedDatabase) {
+                document.getElementById('databaseSelector').value = selectedDatabase;
+
+                // Update schema image based on stored database
+                const schemaImg = document.querySelector('#schemaModal img');
+                if (selectedDatabase === 'Northwind') {
+                    schemaImg.src = 'https://www.databasestar.com/wp-content/uploads/2019/04/northwind_erd.png';
+                    document.querySelector('#schemaModalLabel').textContent = 'Northwind Database Schema';
+                } else {
+                    schemaImg.src = 'https://www.richardtwatson.com/open/images/general/ClassicModels.png';
+                    document.querySelector('#schemaModalLabel').textContent = 'ClassicModels Database Schema';
+                }
+            }
+        });
+
+        // Replace or add this function to load modules based on database selection
+        async function loadModules(selectedDatabase) {
+            try {
+                const response = await fetch(`/get_modules?database=${selectedDatabase}`);
+                const data = await response.json();
+
+                // Update file comparison dropdown
+                const referenceSelect = document.getElementById('referenceFile');
+                referenceSelect.innerHTML = '<option value="">Select a reference file...</option>';
+
+                // Update module selection dropdown
+                const questionModuleSelect = document.getElementById('questionModule');
+                questionModuleSelect.innerHTML = '<option value="">Select a module...</option>';
+
+                if (data.modules) {
+                    data.modules.forEach(module => {
+                        // Add to file comparison dropdown
+                        const option1 = document.createElement('option');
+                        option1.value = module.filename;
+                        option1.textContent = module.title;
+                        referenceSelect.appendChild(option1);
+
+                        // Add to module selection dropdown
+                        const option2 = document.createElement('option');
+                        option2.value = module.filename;
+                        option2.textContent = module.title;
+                        questionModuleSelect.appendChild(option2);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading modules:', error);
+            }
+        }
+
+        // Update database switching handler to reload modules
+        document.getElementById('databaseSelector').addEventListener('change', async function (e) {
+            const selectedDatabase = e.target.value;
+            try {
+                const response = await fetch(`/switch_database/${selectedDatabase}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    // Update schema image and other UI elements as before
+                    // ...existing code...
+
+                    // Load modules for the selected database
+                    await loadModules(selectedDatabase);
+
+                    // Store the selection in localStorage
+                    localStorage.setItem('selectedDatabase', selectedDatabase);
+                } else {
+                    alert('Failed to switch database');
+                }
+            } catch (error) {
+                console.error('Error switching database:', error);
+                alert('Error switching database');
+            }
+        });
+
+        // Load initial modules on page load
+        document.addEventListener('DOMContentLoaded', function () {
+            const selectedDatabase = localStorage.getItem('selectedDatabase') || 'ClassicModels';
+            document.getElementById('databaseSelector').value = selectedDatabase;
+            loadModules(selectedDatabase);
+        });
     </script>
+
     {% endblock %}
